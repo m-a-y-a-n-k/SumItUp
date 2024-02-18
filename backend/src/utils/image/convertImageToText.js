@@ -1,26 +1,32 @@
-const { Image } = require("image-js");
-const ImageClassifier = require("image-classifier");
+const { Image } = require("image-recognition");
 
 async function convertImageToText(imageData) {
   try {
     // Load the image
     const image = await Image.load(imageData);
 
-    // Initialize the image classifier
-    const classifier = new ImageClassifier();
+    // Detect objects in the image
+    const objects = await image.detectObjects();
 
-    // Load the model
-    await classifier.load();
+    // Generate description based on detected objects
+    let description = "";
 
-    // Classify the image
-    const predictions = await classifier.predict(image);
+    if (objects.length > 0) {
+      // Construct a description based on detected objects
+      description = objects
+        .map(
+          (obj) =>
+            `Image contains ${obj.className} with confidence ${Math.round(
+              obj.probability * 100
+            )}%`
+        )
+        .join(", ");
+    } else {
+      // If no objects are detected, return a generic description
+      description = "Could not infer any description from image";
+    }
 
-    // Generate a summary based on predictions
-    const summary = predictions
-      .map((prediction) => prediction.className)
-      .join(", ");
-
-    return summary;
+    return description;
   } catch (error) {
     throw new Error("Failed to process image");
   }
