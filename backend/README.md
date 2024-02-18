@@ -44,26 +44,26 @@ The SumItUp backend is responsible for handling user authentication, token manag
 
 The backend project follows a modular structure to organize the codebase effectively:
 
-SumItUp/backend/
-├── src/
-│ ├── controllers/
-│ ├── documentation/
-│ ├── middleware/
-│ ├── models/
-│ ├── routes/
-│ ├── services/
-│ ├── summaryGenerator/
-│ └── utils/
-├── tests/
-│ ├── e2e/
-│ ├── integration/
-│ ├── unit/
-├── index.js
-├── db.js
-├── .gitignore
-├── config.js
-├── package.json
-└── .env
+SumItUp/backend/<br>
+├── src/<br>
+│ ├── controllers/<br>
+│ ├── documentation/<br>
+│ ├── middleware/<br>
+│ ├── models/<br>
+│ ├── routes/<br>
+│ ├── services/<br>
+│ ├── summaryGenerator/<br>
+│ └── utils/<br>
+├── tests/<br>
+│ ├── e2e/<br>
+│ ├── integration/<br>
+│ ├── unit/<br>
+├── index.js<br>
+├── db.js<br>
+├── .gitignore<br>
+├── config.js<br>
+├── package.json<br>
+└── .env<br>
 
 ## Technologies Used
 
