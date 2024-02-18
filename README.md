@@ -76,4 +76,4 @@ For detailed API documentation, please refer to the [API Documentation](#) secti
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
