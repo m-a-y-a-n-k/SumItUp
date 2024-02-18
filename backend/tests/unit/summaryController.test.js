@@ -143,3 +143,23 @@ describe("Summary Controller - URL Content", () => {
     // Add more tests for different scenarios related to URL content
   });
 });
+
+describe("Summary Controller - Book Content", () => {
+  describe("generateBookSummary", () => {
+    it("should generate a summary for Book content", async () => {
+      // Test logic
+    });
+
+    // Add more tests for different scenarios related to URL content
+  });
+});
+
+describe("Summary Controller - PDF Content", () => {
+  describe("generatePDFSummary", () => {
+    it("should generate a summary for PDF content", async () => {
+      // Test logic
+    });
+
+    // Add more tests for different scenarios related to URL content
+  });
+});

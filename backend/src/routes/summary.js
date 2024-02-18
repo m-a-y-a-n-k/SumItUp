@@ -9,5 +9,6 @@ router.get("/generate/video", summaryController.generateVideoSummary);
 router.get("/generate/gif", summaryController.generateGifSummary);
 router.get("/generate/url", summaryController.generateUrlSummary);
 router.get("/generate/book", summaryController.generateBookSummary);
+router.get("/generate/pdf", summaryController.generatePDFSummary);
 
 module.exports = router;

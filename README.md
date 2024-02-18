@@ -1,6 +1,6 @@
 # SumItUp
 
-SumItUp is a platform that allows users to generate summaries from various types of content, including audio, images, videos, GIFs, URLs, and books. It provides users with quick and concise summaries to help them understand the content more efficiently.
+SumItUp is a platform that allows users to generate summaries from various types of content, including audio, images, videos, GIFs, URLs, PDFs and books. It provides users with quick and concise summaries to help them understand the content more efficiently.
 
 ## Features
 
@@ -14,6 +14,7 @@ SumItUp is a platform that allows users to generate summaries from various types
   - Generate summaries from GIFs.
   - Generate summaries from URLs.
   - Generate summaries from books.
+  - Generate summaries from PDFs.
 
 - **Token Management**: Users can earn tokens by watching ads and spend tokens to opt out of ads.
 
@@ -21,7 +22,7 @@ SumItUp is a platform that allows users to generate summaries from various types
 
 - **PDF Generation**: Users can generate PDF documents from summaries for easy sharing and saving.
 
-- **Personalized Ads**: Users can view personalized ads based on their interests.
+- **Personalized Ads**: Users are shown personalized ads based on their interests.
 
 ## User Stories
 
@@ -38,6 +39,7 @@ SumItUp is a platform that allows users to generate summaries from various types
    - As a user, I want to be able to generate a summary from a GIF, so I can quickly understand its content.
    - As a user, I want to be able to generate a summary from a URL, so I can quickly understand its content.
    - As a user, I want to be able to generate a summary from a book, so I can quickly understand its content.
+   - As a user, I want to be able to genrate a summary from a PDF document, so I can quickly understand its content.
 
 3. **Token Management**:
 

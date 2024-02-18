@@ -73,6 +73,10 @@ const summaryController = {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
+
+  async generatePDFSummary(req, res) {
+    // Implementation for generating pdf summary
+  },
 };
 
 module.exports = summaryController;

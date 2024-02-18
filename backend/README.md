@@ -1,10 +1,10 @@
 # SumItUp Backend
 
-SumItUp is a platform that allows users to generate summaries from various types of content, including audio, images, videos, GIFs, URLs, and books. It provides users with quick and concise summaries to help them understand the content more efficiently.
+SumItUp is a platform that allows users to generate summaries from various types of content, including audio, images, videos, GIFs, URLs, PDFs and books. It provides users with quick and concise summaries to help them understand the content more efficiently.
 
 ## Overview
 
-The SumItUp backend is responsible for handling user authentication, token management, ad management, PDF generation, content summary generation, error handling, and API documentation.
+The SumItUp backend is responsible for handling user authentication, token management, ad management, summary PDF generation, content summary generation, error handling, and API documentation.
 
 ## Installation
 
