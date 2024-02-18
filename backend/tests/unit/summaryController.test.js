@@ -3,6 +3,9 @@ const chai = require("chai");
 const { expect } = chai;
 const sinon = require("sinon");
 const summaryController = require("../../src/controllers/summary");
+const imageService = require("../../src/services/summary/image");
+const audioUtils = require("../../src/utils/audio");
+const textUtils = require("../../src/utils/text");
 
 describe("Summary Controller - Audio Content", () => {
   describe("generateAudioSummary", () => {
@@ -59,12 +62,12 @@ describe("Summary Controller - Audio Content", () => {
         format: "mp3",
       };
       sinon.stub(fs, "existsSync").returns(true);
-      sinon.stub(summaryController, "convertAudioToText").resolves(null);
+      sinon.stub(audioUtils, "convertAudioToText").resolves(null);
       await summaryController.generateAudioSummary(req, res);
       expect(res.status.calledWith(400)).to.be.true;
       expect(res.json.calledWith({ error: "No text found in the audio." })).to
         .be.true;
-      summaryController.convertAudioToText.restore(); // Restore stub after the test
+      audioUtils.convertAudioToText.restore(); // Restore stub after the test
     });
 
     it("should generate summary from text", async () => {
@@ -74,16 +77,16 @@ describe("Summary Controller - Audio Content", () => {
       };
       sinon.stub(fs, "existsSync").returns(true);
       sinon
-        .stub(summaryController, "convertAudioToText")
+        .stub(audioUtils, "convertAudioToText")
         .resolves("This is a sample text.");
       sinon
-        .stub(summaryController, "generateSummaryFromText")
+        .stub(textUtils, "generateSummaryFromText")
         .returns("Generated summary");
       await summaryController.generateAudioSummary(req, res);
       expect(res.status.calledWith(200)).to.be.true;
       expect(res.json.calledWith({ summary: "Generated summary" })).to.be.true;
-      summaryController.convertAudioToText.restore();
-      summaryController.generateSummaryFromText.restore();
+      audioUtils.convertAudioToText.restore();
+      textUtils.generateSummaryFromText.restore();
     });
 
     it("should handle internal server error", async () => {
@@ -93,24 +96,62 @@ describe("Summary Controller - Audio Content", () => {
       };
       sinon.stub(fs, "existsSync").returns(true);
       sinon
-        .stub(summaryController, "convertAudioToText")
+        .stub(audioUtils, "convertAudioToText")
         .rejects(new Error("Internal server error"));
       await summaryController.generateAudioSummary(req, res);
       expect(res.status.calledWith(500)).to.be.true;
       expect(res.json.calledWith({ error: "Internal Server Error" })).to.be
         .true;
-      summaryController.convertAudioToText.restore();
+      audioUtils.convertAudioToText.restore();
     });
   });
 });
 
 describe("Summary Controller - Image Content", () => {
   describe("generateImageSummary", () => {
-    it("should generate a summary for image content", async () => {
-      // Test logic
+    it("should generate a summary from image data and return 200 status code", async () => {
+      // Mock request and response objects
+      const req = { body: { imageData: "mockImageData" } };
+      const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
+
+      // Mock the imageService function
+      const mockSummary = "Generated summary";
+      sinon
+        .stub(imageService, "generateSummaryFromImage")
+        .resolves(mockSummary);
+
+      // Call the controller method
+      await summaryController.generateImageSummary(req, res);
+
+      // Verify the response
+      expect(res.status.calledOnceWith(200)).to.be.true;
+      expect(res.json.calledOnceWith({ summary: mockSummary })).to.be.true;
+
+      // Restore the stubs
+      sinon.restore();
     });
 
-    // Add more tests for different scenarios related to image content
+    it("should handle errors and return 500 status code with error message", async () => {
+      // Mock request and response objects
+      const req = { body: { imageData: "mockImageData" } };
+      const res = { status: sinon.stub().returnsThis(), json: sinon.spy() };
+
+      // Mock the imageService function to throw an error
+      const errorMessage = "Failed to generate summary";
+      sinon
+        .stub(imageService, "generateSummaryFromImage")
+        .throws(new Error(errorMessage));
+
+      // Call the controller method
+      await summaryController.generateImageSummary(req, res);
+
+      // Verify the response
+      expect(res.status.calledOnceWith(500)).to.be.true;
+      expect(res.json.calledOnceWith({ error: errorMessage })).to.be.true;
+
+      // Restore the stubs
+      sinon.restore();
+    });
   });
 });
 

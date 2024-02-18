@@ -24,6 +24,8 @@
     "deepspeech": "^0.9.3",
     "dotenv": "^16.4.4",
     "express": "^4.17.2",
+    "image-classifier": "^1.1.0",
+    "image-js": "^0.35.5",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^4.0.3",
     "mongoose": "^5.13.9",

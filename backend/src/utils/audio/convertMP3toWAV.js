@@ -1,4 +1,3 @@
-const fs = require("fs");
 const { spawn } = require("child_process");
 
 function convertMP3toWAV(mp3FilePath, wavFilePath) {
