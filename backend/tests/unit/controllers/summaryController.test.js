@@ -2,10 +2,10 @@ const fs = require("fs");
 const chai = require("chai");
 const { expect } = chai;
 const sinon = require("sinon");
-const summaryController = require("../../src/controllers/summary");
-const imageService = require("../../src/services/summary/image");
-const audioUtils = require("../../src/utils/audio");
-const textUtils = require("../../src/utils/text");
+const summaryController = require("../../../src/controllers/summary");
+const imageService = require("../../../src/services/summary/image");
+const audioUtils = require("../../../src/utils/audio");
+const textUtils = require("../../../src/utils/text");
 
 describe("Summary Controller - Audio Content", () => {
   describe("generateAudioSummary", () => {

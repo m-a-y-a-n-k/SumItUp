@@ -1,7 +1,7 @@
 const chai = require("chai");
 const { expect } = chai;
 const sinon = require("sinon");
-const tokenController = require("../../src/controllers/token");
+const tokenController = require("../../../src/controllers/token");
 
 describe("Token Controller", () => {
   describe("earnTokens", () => {

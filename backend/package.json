@@ -20,6 +20,7 @@
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.19.0",
+    "chai-as-promised": "^7.1.2",
     "cors": "^2.8.5",
     "deepspeech": "^0.9.3",
     "dotenv": "^16.4.4",
@@ -29,6 +30,7 @@
     "mongodb": "^4.0.3",
     "mongoose": "^5.13.9",
     "natural": "^6.10.4",
+    "pdfkit": "^0.15.0",
     "stopwords": "0.0.9"
   },
   "devDependencies": {

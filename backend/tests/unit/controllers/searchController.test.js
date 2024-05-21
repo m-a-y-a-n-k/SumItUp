@@ -1,7 +1,7 @@
 const chai = require("chai");
 const { expect } = chai;
 const sinon = require("sinon");
-const searchController = require("../../src/controllers/search");
+const searchController = require("../../../src/controllers/search");
 
 describe("Search Controller", () => {
   describe("fuzzySearch", () => {

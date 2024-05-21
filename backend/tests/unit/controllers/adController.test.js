@@ -1,8 +1,8 @@
 const chai = require("chai");
 const { expect } = chai;
 const sinon = require("sinon");
-const User = require("../../src/models/User");
-const adController = require("../../src/controllers/ad");
+const User = require("../../../src/models/User");
+const adController = require("../../../src/controllers/ad");
 
 describe("Ad Controller", () => {
   describe("checkAdEligibility", () => {
