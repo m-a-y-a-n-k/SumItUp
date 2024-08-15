@@ -19,7 +19,7 @@ const tokenController = {
 
       if (!user.adEligible) {
         return res
-          .status(500)
+          .status(400)
           .send({ error: "User is not eligible for earning ads based token" });
       }
 
@@ -57,7 +57,7 @@ const tokenController = {
       }
 
       if (!user.adEligible) {
-        return res.status(500).send({
+        return res.status(400).send({
           error: "User has already spent tokens and opted out of ads",
         });
       }
