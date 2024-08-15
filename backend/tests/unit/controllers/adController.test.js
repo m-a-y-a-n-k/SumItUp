@@ -6,49 +6,70 @@ const adController = require("../../../src/controllers/ad");
 
 describe("Ad Controller", () => {
   describe("checkAdEligibility", () => {
+    let res;
+
+    beforeEach(() => {
+      res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.stub().returnsThis(),
+      };
+    });
+
+    afterEach(() => {
+      sinon.restore();
+    });
+
     it("should return true if user is eligible for ads", async () => {
       // Stub the User.findById method to return a user with adEligible: true
       sinon.stub(User, "findById").resolves({ adEligible: true });
 
-      // Call the checkAdEligibility method with a userId
-      const result = await adController.checkAdEligibility("user123");
+      const req = { user: { userId: "user123" } };
 
-      // Expect the result to be true
-      expect(result).to.be.true;
+      await adController.checkAdEligibility(req, res);
 
-      // Restore the stub after the test
-      User.findById.restore();
+      // Expect the response to be sent with the correct status and JSON
+      expect(res.status.calledWith(200)).to.be.true;
+      expect(res.json.calledWith({ eligible: true })).to.be.true;
     });
 
     it("should return false if user is not eligible for ads", async () => {
       // Stub the User.findById method to return a user with adEligible: false
       sinon.stub(User, "findById").resolves({ adEligible: false });
 
-      // Call the checkAdEligibility method with a userId
-      const result = await adController.checkAdEligibility("user456");
+      const req = { user: { userId: "user456" } };
 
-      // Expect the result to be false
-      expect(result).to.be.false;
+      await adController.checkAdEligibility(req, res);
 
-      // Restore the stub after the test
-      User.findById.restore();
+      // Expect the response to be sent with the correct status and JSON
+      expect(res.status.calledWith(200)).to.be.true;
+      expect(res.json.calledWith({ eligible: false })).to.be.true;
     });
 
-    it("should throw an error if user lookup fails", async () => {
+    it("should return 404 if user is not found", async () => {
+      // Stub the User.findById method to return null
+      sinon.stub(User, "findById").resolves(null);
+
+      const req = { user: { userId: "user789" } };
+
+      await adController.checkAdEligibility(req, res);
+
+      // Expect the response to be sent with the correct status and JSON
+      expect(res.status.calledWith(404)).to.be.true;
+      expect(res.json.calledWith({ error: "User not found" })).to.be.true;
+    });
+
+    it("should return 500 if an error occurs during user lookup", async () => {
       // Stub the User.findById method to throw an error
       sinon.stub(User, "findById").throws(new Error("User lookup failed"));
 
-      // Call the checkAdEligibility method with a userId
-      try {
-        await adController.checkAdEligibility("user789");
-      } catch (error) {
-        // Expect an error to be thrown
-        expect(error).to.exist;
-        expect(error.message).to.equal("User lookup failed");
-      }
+      const req = { user: { userId: "user000" } };
 
-      // Restore the stub after the test
-      User.findById.restore();
+      await adController.checkAdEligibility(req, res);
+
+      // Expect the response to be sent with the correct status and JSON
+      expect(res.status.calledWith(500)).to.be.true;
+      expect(res.json.calledWith({ error: "Failed to check ad eligibility" }))
+        .to.be.true;
     });
   });
 });
