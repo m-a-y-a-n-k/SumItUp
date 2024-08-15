@@ -3,7 +3,7 @@ const { expect } = chai;
 const sinon = require("sinon");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const authController = require("../../../src/controllers/auth.js");
+const authController = require("../../../src/controllers/auth");
 const User = require("../../../src/models/User.js");
 
 describe("Auth Controller", () => {
