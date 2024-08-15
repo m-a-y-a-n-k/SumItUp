@@ -29,17 +29,17 @@ describe("PDFService", () => {
 
   it("should generate a PDF and return the file path", async () => {
     const summary = "This is a test summary";
-    const pdfPath = await PDFService.generatePDF(summary);
+    const pdfPath = await PDFService.createPDFFile(summary);
 
     expect(pdfPath).to.match(/\/pdfs\/summary_\d+\.pdf/);
     expect(fs.createWriteStream.calledOnce).to.be.true;
   });
 
   it("should throw an error if the summary is empty", async () => {
-    await expect(PDFService.generatePDF("")).to.be.rejectedWith(
+    await expect(PDFService.createPDFFile("")).to.be.rejectedWith(
       "Summary is empty"
     );
-    await expect(PDFService.generatePDF("   ")).to.be.rejectedWith(
+    await expect(PDFService.createPDFFile("   ")).to.be.rejectedWith(
       "Summary is empty"
     );
   });

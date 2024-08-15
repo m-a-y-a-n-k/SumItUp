@@ -3,7 +3,7 @@ const fs = require("fs");
 
 class PDFService {
   // Generate a PDF document from a summary
-  static async generatePDF(summary) {
+  static async createPDFFile(summary) {
     return new Promise((resolve, reject) => {
       try {
         if (!summary || summary.trim() === "") {

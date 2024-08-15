@@ -17,7 +17,7 @@ describe("PDFController", () => {
   let generatePDFStub;
 
   beforeEach(() => {
-    generatePDFStub = sinon.stub(PDFService, "generatePDF");
+    generatePDFStub = sinon.stub(PDFService, "createPDFFile");
   });
 
   afterEach(() => {
