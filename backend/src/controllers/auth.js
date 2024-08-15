@@ -43,10 +43,12 @@ const authController = {
   },
 
   async signup(req, res) {
-    const { email, password } = req.body;
+    const { email, password, username } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ error: "Email and password are required" });
+    if (!email || !password || !username) {
+      return res
+        .status(400)
+        .json({ error: "Username, Email and password are required" });
     }
 
     // Validate email format
@@ -74,12 +76,8 @@ const authController = {
       return res.status(500).json({ error: "Internal Server Error" });
     }
 
-    // Hash the password
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-
     // Create a new user
-    const newUser = new User({ email, password: hashedPassword });
+    const newUser = new User({ username, email, password });
 
     try {
       await newUser.save();

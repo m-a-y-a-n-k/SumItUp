@@ -10,7 +10,11 @@ describe("Auth Controller", () => {
   describe("signup", () => {
     it("should create a new user", async () => {
       const req = {
-        body: { email: "test@example.com", password: "Password1" },
+        body: {
+          username: "test",
+          email: "test@example.com",
+          password: "Password1",
+        },
       };
       const res = {
         status: sinon.stub().returnsThis(),
@@ -33,9 +37,9 @@ describe("Auth Controller", () => {
       User.prototype.save.restore();
     });
 
-    it("should return 400 if email is missing", async () => {
+    it("should return 400 if username is missing", async () => {
       const req = {
-        body: { password: "Password1" },
+        body: { email: "test@example.com", password: "Password1" },
       };
       const res = {
         status: sinon.stub().returnsThis(),
@@ -46,13 +50,36 @@ describe("Auth Controller", () => {
 
       expect(res.status.calledOnceWith(400)).to.be.true;
       expect(res.json.calledOnce).to.be.true;
-      expect(res.json.calledWith({ error: "Email and password are required" }))
-        .to.be.true;
+      expect(
+        res.json.calledWith({
+          error: "Username, Email and password are required",
+        })
+      ).to.be.true;
+    });
+
+    it("should return 400 if email is missing", async () => {
+      const req = {
+        body: { username: "Test", password: "Password1" },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      await authController.signup(req, res);
+
+      expect(res.status.calledOnceWith(400)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(
+        res.json.calledWith({
+          error: "Username, Email and password are required",
+        })
+      ).to.be.true;
     });
 
     it("should return 400 if password is missing", async () => {
       const req = {
-        body: { email: "test@example.com" },
+        body: { username: "Test", email: "test@example.com" },
       };
       const res = {
         status: sinon.stub().returnsThis(),
@@ -63,13 +90,20 @@ describe("Auth Controller", () => {
 
       expect(res.status.calledOnceWith(400)).to.be.true;
       expect(res.json.calledOnce).to.be.true;
-      expect(res.json.calledWith({ error: "Email and password are required" }))
-        .to.be.true;
+      expect(
+        res.json.calledWith({
+          error: "Username, Email and password are required",
+        })
+      ).to.be.true;
     });
 
     it("should return 400 if email is invalid", async () => {
       const req = {
-        body: { email: "invalid-email", password: "Password1" },
+        body: {
+          username: "Test",
+          email: "invalid-email",
+          password: "Password1",
+        },
       };
       const res = {
         status: sinon.stub().returnsThis(),
@@ -85,7 +119,11 @@ describe("Auth Controller", () => {
 
     it("should return 400 if password is weak", async () => {
       const req = {
-        body: { email: "test@example.com", password: "123456" },
+        body: {
+          username: "Test",
+          email: "test@example.com",
+          password: "123456",
+        },
       };
       const res = {
         status: sinon.stub().returnsThis(),
@@ -105,7 +143,11 @@ describe("Auth Controller", () => {
 
     it("should return 409 if user already exists", async () => {
       const req = {
-        body: { email: "existing-user@example.com", password: "Password1" },
+        body: {
+          username: "User",
+          email: "existing-user@example.com",
+          password: "Password1",
+        },
       };
       const res = {
         status: sinon.stub().returnsThis(),
@@ -129,7 +171,10 @@ describe("Auth Controller", () => {
   describe("login", () => {
     it("should generate a JWT token for valid user", async () => {
       const req = {
-        body: { email: "test@example.com", password: "Password1" },
+        body: {
+          email: "test@example.com",
+          password: "Password1",
+        },
       };
       const res = {
         status: sinon.stub().returnsThis(),
