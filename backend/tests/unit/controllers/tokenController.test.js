@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 const tokenController = require("../../../src/controllers/token");
 const User = require("../../../src/models/User");
+const cache = require("../../../src/cache"); // Import the central cache
 
 describe("Token Controller", () => {
   let req, res, user;
@@ -28,6 +29,17 @@ describe("Token Controller", () => {
     };
 
     sinon.stub(User, "findById").resolves(user); // Mock the User.findById method
+    sinon.stub(User, "findByIdAndUpdate").resolves();
+    sinon.stub(cache, "get").callsFake((key) => {
+      if (key === `user:${req.user.userId}`) {
+        return {
+          tokens: user.tokens,
+          adEligible: user.adEligible,
+        };
+      }
+      return null;
+    });
+    sinon.stub(cache, "set").resolves(); // Mock the cache.set method
   });
 
   afterEach(() => {
@@ -44,6 +56,7 @@ describe("Token Controller", () => {
 
     it("should return 404 if user is not found", async () => {
       User.findById.resolves(null);
+      cache.get.callsFake((key) => null);
 
       req.body.adId = "someAdId";
       await tokenController.earnTokens(req, res);
@@ -61,7 +74,7 @@ describe("Token Controller", () => {
       expect(res.status.calledWith(400)).to.be.true;
       expect(
         res.send.calledWith({
-          error: "User is not eligible for earning ads based token",
+          error: "User is not eligible for earning ads based tokens",
         })
       ).to.be.true;
     });
@@ -70,8 +83,6 @@ describe("Token Controller", () => {
       req.body.adId = "someAdId";
       await tokenController.earnTokens(req, res);
 
-      expect(user.tokens).to.equal(150); // Assuming tokensEarned is 50
-      expect(user.save.calledOnce).to.be.true;
       expect(res.status.calledWith(200)).to.be.true;
       expect(
         res.send.calledWith({
@@ -79,6 +90,12 @@ describe("Token Controller", () => {
           tokens: 150,
         })
       ).to.be.true;
+      expect(
+        cache.set.calledWith(`user:${req.user.userId}`, {
+          tokens: 150,
+          adEligible: true,
+        })
+      ).to.be.true; // Check cache update
     });
   });
 
@@ -96,6 +113,7 @@ describe("Token Controller", () => {
 
     it("should return 404 if user is not found", async () => {
       User.findById.resolves(null);
+      cache.get.callsFake((key) => null);
 
       req.body.tokens = 50;
       await tokenController.spendTokens(req, res);
@@ -132,9 +150,6 @@ describe("Token Controller", () => {
       req.body.tokens = 80;
       await tokenController.spendTokens(req, res);
 
-      expect(user.tokens).to.equal(20); // 100 - 80 = 20 tokens left
-      expect(user.adEligible).to.be.false;
-      expect(user.save.calledOnce).to.be.true;
       expect(res.status.calledWith(200)).to.be.true;
       expect(
         res.send.calledWith({
@@ -142,6 +157,14 @@ describe("Token Controller", () => {
           tokens: 20,
         })
       ).to.be.true;
+      expect(
+        cache.set.calledWith(`user:${req.user.userId}`, {
+          tokens: 20,
+          adEligible: false,
+        })
+      ).to.be.true; // Check cache update
+      expect(cache.set.calledWith(`adEligibility:${req.user.userId}`, false)).to
+        .be.true; // Check cache update
     });
   });
 });

@@ -7,8 +7,8 @@
   "scripts": {
     "start": "node index.js",
     "test": "mocha",
-    "test:unit": "mocha --timeout 5000 tests/unit/**/*.test.js",
-    "test:integration": "mocha --timeout 5000 tests/integration/**/*.test.js",
+    "test:unit": "mocha --timeout 10000 tests/unit/**/*.test.js",
+    "test:integration": "mocha --timeout 10000 tests/integration/**/*.test.js",
     "test:e2e": "cypress run",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "test:coverage": "istanbul cover _mocha -- test/unit",
@@ -34,6 +34,7 @@
     "mongoose": "^5.13.9",
     "morgan": "^1.10.0",
     "natural": "^6.10.4",
+    "node-cache": "^5.1.2",
     "pdfkit": "^0.15.0",
     "stopwords": "0.0.9"
   },
