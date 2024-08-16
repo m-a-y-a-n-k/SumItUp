@@ -11,7 +11,7 @@ describe("Ad Controller", () => {
 
     beforeEach(() => {
       // Mock request and response objects
-      req = { user: { userId: "user123" } };
+      req = { user: { id: "user123" } };
       res = {
         status: sinon.stub().returnsThis(),
         json: sinon.stub(),
@@ -50,7 +50,7 @@ describe("Ad Controller", () => {
       // Stub the User.findById method to return a user with adEligible: false
       sinon.stub(User, "findById").resolves({ adEligible: false });
 
-      const req = { user: { userId: "user456" } };
+      const req = { user: { id: "user456" } };
 
       await adController.checkAdEligibility(req, res);
 
@@ -69,7 +69,7 @@ describe("Ad Controller", () => {
       // Stub the User.findById method to return null
       sinon.stub(User, "findById").resolves(null);
 
-      const req = { user: { userId: "user789" } };
+      const req = { user: { id: "user789" } };
 
       await adController.checkAdEligibility(req, res);
 
@@ -88,7 +88,7 @@ describe("Ad Controller", () => {
       // Stub the User.findById method to throw an error
       sinon.stub(User, "findById").throws(new Error("User lookup failed"));
 
-      const req = { user: { userId: "user000" } };
+      const req = { user: { id: "user000" } };
 
       await adController.checkAdEligibility(req, res);
 

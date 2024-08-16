@@ -3,20 +3,20 @@ const User = require("../../models/User");
 
 async function checkAdEligibility(req, res) {
   try {
-    const { userId } = req.user; // Extract userId from authenticated user
+    const { id } = req.user; // Extract id from authenticated user
 
     // Check the cache first
-    let cachedData = cache.get(`adEligibility:${userId}`);
+    let cachedData = cache.get(`adEligibility:${id}`);
     if (!cachedData) {
       // If not cached, fetch from the database
-      const user = await User.findById(userId);
+      const user = await User.findById(id);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
 
       // Cache the eligibility status
       cachedData = user.adEligible;
-      cache.set(`adEligibility:${userId}`, cachedData);
+      cache.set(`adEligibility:${id}`, cachedData);
     }
 
     // Respond with the cached or retrieved eligibility status

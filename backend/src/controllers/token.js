@@ -4,7 +4,7 @@ const User = require("../models/User");
 const tokenController = {
   async earnTokens(req, res) {
     try {
-      const { userId } = req.user; // Extract userId from authenticated user
+      const { id } = req.user; // Extract id from authenticated user
       const { adId } = req.body;
 
       // Validate adId
@@ -13,10 +13,10 @@ const tokenController = {
       }
 
       // Check the cache first
-      let cachedData = cache.get(`user:${userId}`);
+      let cachedData = cache.get(`user:${id}`);
       if (!cachedData) {
         // If not cached, fetch from database
-        const user = await User.findById(userId);
+        const user = await User.findById(id);
         if (!user) {
           return res.status(404).send({ error: "User not found" });
         }
@@ -25,7 +25,7 @@ const tokenController = {
           adEligible: user.adEligible,
         };
         // Cache the relevant data
-        cache.set(`user:${userId}`, cachedData);
+        cache.set(`user:${id}`, cachedData);
       }
 
       if (!cachedData.adEligible) {
@@ -39,10 +39,10 @@ const tokenController = {
       cachedData.tokens += tokensEarned;
 
       // Update the user's token balance in the database
-      await User.findByIdAndUpdate(userId, { tokens: cachedData.tokens });
+      await User.findByIdAndUpdate(id, { tokens: cachedData.tokens });
 
       // Update the cache
-      cache.set(`user:${userId}`, cachedData);
+      cache.set(`user:${id}`, cachedData);
 
       // Send back the updated token balance
       res.status(200).send({
@@ -57,7 +57,7 @@ const tokenController = {
 
   async spendTokens(req, res) {
     try {
-      const { userId } = req.user; // Extract userId from authenticated user
+      const { id } = req.user; // Extract id from authenticated user
       const { tokens } = req.body;
 
       // Validate token amount
@@ -68,10 +68,10 @@ const tokenController = {
       }
 
       // Check the cache first
-      let cachedData = cache.get(`user:${userId}`);
+      let cachedData = cache.get(`user:${id}`);
       if (!cachedData) {
         // If not cached, fetch from database
-        const user = await User.findById(userId);
+        const user = await User.findById(id);
         if (!user) {
           return res.status(404).send({ error: "User not found" });
         }
@@ -80,7 +80,7 @@ const tokenController = {
           adEligible: user.adEligible,
         };
         // Cache the relevant data
-        cache.set(`user:${userId}`, cachedData);
+        cache.set(`user:${id}`, cachedData);
       }
 
       if (!cachedData.adEligible) {
@@ -99,14 +99,14 @@ const tokenController = {
       cachedData.adEligible = false;
 
       // Update the user's token balance and ad eligibility in the database
-      await User.findByIdAndUpdate(userId, {
+      await User.findByIdAndUpdate(id, {
         tokens: cachedData.tokens,
         adEligible: false,
       });
 
       // Update the cache
-      cache.set(`user:${userId}`, cachedData);
-      cache.set(`adEligibility:${userId}`, false);
+      cache.set(`user:${id}`, cachedData);
+      cache.set(`adEligibility:${id}`, false);
 
       // Send back the updated token balance
       res.status(200).send({

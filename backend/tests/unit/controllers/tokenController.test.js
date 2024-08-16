@@ -12,7 +12,7 @@ describe("Token Controller", () => {
   beforeEach(() => {
     // Mock request and response objects
     req = {
-      user: { userId: new mongoose.Types.ObjectId() }, // Mock authenticated user
+      user: { id: new mongoose.Types.ObjectId() }, // Mock authenticated user
       body: {},
     };
     res = {
@@ -22,7 +22,7 @@ describe("Token Controller", () => {
 
     // Mock a user object
     user = {
-      _id: req.user.userId,
+      _id: req.user.id,
       tokens: 100,
       adEligible: true,
       save: sinon.stub().resolves(),
@@ -31,7 +31,7 @@ describe("Token Controller", () => {
     sinon.stub(User, "findById").resolves(user); // Mock the User.findById method
     sinon.stub(User, "findByIdAndUpdate").resolves();
     sinon.stub(cache, "get").callsFake((key) => {
-      if (key === `user:${req.user.userId}`) {
+      if (key === `user:${req.user.id}`) {
         return {
           tokens: user.tokens,
           adEligible: user.adEligible,
@@ -91,7 +91,7 @@ describe("Token Controller", () => {
         })
       ).to.be.true;
       expect(
-        cache.set.calledWith(`user:${req.user.userId}`, {
+        cache.set.calledWith(`user:${req.user.id}`, {
           tokens: 150,
           adEligible: true,
         })
@@ -158,13 +158,13 @@ describe("Token Controller", () => {
         })
       ).to.be.true;
       expect(
-        cache.set.calledWith(`user:${req.user.userId}`, {
+        cache.set.calledWith(`user:${req.user.id}`, {
           tokens: 20,
           adEligible: false,
         })
       ).to.be.true; // Check cache update
-      expect(cache.set.calledWith(`adEligibility:${req.user.userId}`, false)).to
-        .be.true; // Check cache update
+      expect(cache.set.calledWith(`adEligibility:${req.user.id}`, false)).to.be
+        .true; // Check cache update
     });
   });
 });
