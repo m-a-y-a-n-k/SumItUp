@@ -4,7 +4,8 @@ const sinon = require("sinon");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const authController = require("../../../src/controllers/auth");
-const User = require("../../../src/models/User.js");
+const User = require("../../../src/models/User");
+const authService = require("../../../src/services/auth");
 
 describe("Auth Controller", () => {
   describe("signup", () => {
@@ -52,7 +53,7 @@ describe("Auth Controller", () => {
       expect(res.json.calledOnce).to.be.true;
       expect(
         res.json.calledWith({
-          error: "Username, Email and password are required",
+          error: "Username, Email, and password are required",
         })
       ).to.be.true;
     });
@@ -72,7 +73,7 @@ describe("Auth Controller", () => {
       expect(res.json.calledOnce).to.be.true;
       expect(
         res.json.calledWith({
-          error: "Username, Email and password are required",
+          error: "Username, Email, and password are required",
         })
       ).to.be.true;
     });
@@ -92,7 +93,7 @@ describe("Auth Controller", () => {
       expect(res.json.calledOnce).to.be.true;
       expect(
         res.json.calledWith({
-          error: "Username, Email and password are required",
+          error: "Username, Email, and password are required",
         })
       ).to.be.true;
     });
@@ -181,12 +182,14 @@ describe("Auth Controller", () => {
         json: sinon.spy(),
       };
 
-      sinon.stub(User, "findOne").resolves({
+      const user = {
         _id: "123456",
         email: "test@example.com",
         password: "hashedPassword",
-      });
-      sinon.stub(bcrypt, "compare").resolves(true);
+        comparePassword: sinon.stub().resolves(true),
+      };
+
+      sinon.stub(User, "findByEmail").resolves(user);
       sinon.stub(jwt, "sign").returns("token");
 
       await authController.login(req, res);
@@ -195,8 +198,7 @@ describe("Auth Controller", () => {
       expect(res.json.calledOnce).to.be.true;
       expect(res.json.calledWith({ token: "token" })).to.be.true;
 
-      User.findOne.restore();
-      bcrypt.compare.restore();
+      User.findByEmail.restore();
       jwt.sign.restore();
     });
 
@@ -263,12 +265,14 @@ describe("Auth Controller", () => {
         json: sinon.spy(),
       };
 
-      sinon.stub(User, "findOne").resolves({
+      const user = {
         _id: "123456",
         email: "test@example.com",
         password: "hashedPassword",
-      });
-      sinon.stub(bcrypt, "compare").resolves(false);
+        comparePassword: sinon.stub().resolves(false),
+      };
+
+      sinon.stub(User, "findByEmail").resolves(user);
 
       await authController.login(req, res);
 
@@ -276,8 +280,313 @@ describe("Auth Controller", () => {
       expect(res.json.calledOnce).to.be.true;
       expect(res.json.calledWith({ error: "Invalid credentials" })).to.be.true;
 
+      User.findByEmail.restore();
+    });
+  });
+
+  describe("forgotPassword", () => {
+    it("should send a reset link if the user exists", async () => {
+      const req = {
+        body: {
+          email: "test@example.com",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findByEmail").resolves({
+        email: "test@example.com",
+        save: sinon.stub().resolves(),
+        generateResetToken: sinon.stub().returns("reset-token"),
+      });
+      sinon.stub(authService, "sendResetEmail").resolves();
+
+      await authController.forgotPassword(req, res);
+
+      expect(res.status.calledOnceWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ message: "Password reset link sent" })).to.be
+        .true;
+
+      User.findByEmail.restore();
+      authService.sendResetEmail.restore();
+    });
+
+    it("should return 404 if the user does not exist", async () => {
+      const req = {
+        body: {
+          email: "nonexistent@example.com",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findByEmail").resolves(null);
+
+      await authController.forgotPassword(req, res);
+
+      expect(res.status.calledOnceWith(404)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ error: "User not found" })).to.be.true;
+
+      User.findByEmail.restore();
+    });
+
+    it("should return 500 if there's an error sending the reset email", async () => {
+      const req = {
+        body: {
+          email: "test@example.com",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findByEmail").resolves({
+        email: "test@example.com",
+        save: sinon.stub().resolves(),
+        generateResetToken: sinon.stub().returns("reset-token"),
+      });
+      sinon
+        .stub(authService, "sendResetEmail")
+        .rejects(new Error("Send email error"));
+
+      await authController.forgotPassword(req, res);
+
+      expect(res.status.calledOnceWith(500)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ error: "Error sending reset link" })).to.be
+        .true;
+
+      User.findByEmail.restore();
+      authService.sendResetEmail.restore();
+    });
+  });
+
+  describe("resetPassword", () => {
+    it("should reset the password if the token is valid", async () => {
+      const req = {
+        body: {
+          resetToken: "valid-token",
+          newPassword: "NewPassword1",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findOne").resolves({
+        resetToken: "valid-token",
+        resetTokenExpiry: Date.now() + 3600000, // 1 hour
+        password: "oldPassword",
+        save: sinon.stub().resolves(),
+      });
+      sinon.stub(bcrypt, "hash").resolves("hashedPassword");
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status.calledOnceWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ message: "Password reset successfully" })).to
+        .be.true;
+
       User.findOne.restore();
-      bcrypt.compare.restore();
+      bcrypt.hash.restore();
+    });
+
+    it("should return 400 if the token is invalid", async () => {
+      const req = {
+        body: {
+          resetToken: "invalid-token",
+          newPassword: "NewPassword1",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findOne").resolves(null);
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status.calledOnceWith(400)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ error: "Invalid or expired reset token" }))
+        .to.be.true;
+
+      User.findOne.restore();
+    });
+
+    it("should return 400 if the password is weak", async () => {
+      const req = {
+        body: {
+          resetToken: "valid-token",
+          newPassword: "short",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findOne").resolves({
+        resetToken: "valid-token",
+        resetTokenExpiry: Date.now() + 3600000, // 1 hour
+      });
+
+      await authController.resetPassword(req, res);
+
+      expect(res.status.calledOnceWith(400)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(
+        res.json.calledWith({
+          error: "Password must be alphanumeric and at least 8 characters long",
+        })
+      ).to.be.true;
+
+      User.findOne.restore();
+    });
+  });
+
+  describe("sendVerificationEmail", () => {
+    it("should send a verification email if the user exists", async () => {
+      const req = {
+        body: {
+          email: "test@example.com",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findByEmail").resolves({
+        email: "test@example.com",
+        generateVerificationToken: sinon.stub().returns("verification-token"),
+      });
+
+      sinon.stub(authService, "sendVerificationEmail").resolves();
+
+      await authController.sendVerificationEmail(req, res);
+
+      expect(res.status.calledOnceWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ message: "Verification email sent" })).to.be
+        .true;
+
+      User.findByEmail.restore();
+      authService.sendVerificationEmail.restore();
+    });
+
+    it("should return 404 if the user does not exist", async () => {
+      const req = {
+        body: {
+          email: "nonexistent@example.com",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findByEmail").resolves(null);
+
+      await authController.sendVerificationEmail(req, res);
+
+      expect(res.status.calledOnceWith(404)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ error: "User not found" })).to.be.true;
+
+      User.findByEmail.restore();
+    });
+
+    it("should return 500 if there's an error sending the verification email", async () => {
+      const req = {
+        body: {
+          email: "test@example.com",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findByEmail").resolves({
+        email: "test@example.com",
+        generateVerificationToken: sinon.stub().returns("verification-token"),
+      });
+      sinon
+        .stub(authService, "sendVerificationEmail")
+        .rejects(new Error("Send email error"));
+
+      await authController.sendVerificationEmail(req, res);
+
+      expect(res.status.calledOnceWith(500)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ error: "Error sending verification email" }))
+        .to.be.true;
+
+      User.findByEmail.restore();
+      authService.sendVerificationEmail.restore();
+    });
+  });
+
+  describe("verifyEmail", () => {
+    it("should verify the email if the token is valid", async () => {
+      const req = {
+        query: {
+          token: "valid-token",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findOne").resolves({
+        verificationToken: "valid-token",
+        verified: false,
+        save: sinon.stub().resolves(),
+      });
+
+      await authController.verifyEmail(req, res);
+
+      expect(res.status.calledOnceWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ message: "Email verified successfully" })).to
+        .be.true;
+
+      User.findOne.restore();
+    });
+
+    it("should return 400 if the token is invalid", async () => {
+      const req = {
+        query: {
+          token: "invalid-token",
+        },
+      };
+      const res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
+
+      sinon.stub(User, "findOne").resolves(null);
+
+      await authController.verifyEmail(req, res);
+
+      expect(res.status.calledOnceWith(400)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      expect(res.json.calledWith({ error: "Invalid verification token" })).to.be
+        .true;
+
+      User.findOne.restore();
     });
   });
 });

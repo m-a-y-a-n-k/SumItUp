@@ -1,4 +1,6 @@
 const express = require("express");
+// const session = require("express-session");
+// const passport = require("./src/middleware/passport");
 
 // Extensions
 const cors = require("cors");
@@ -34,6 +36,19 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use(limiter);
+
+// Session configuration
+// app.use(
+//   session({
+//     secret: process.env.SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: true,
+//   })
+// );
+
+// Initialize Passport
+// app.use(passport.initialize());
+// app.use(passport.session());
 
 // Routes
 app.use("/api/docs", apiDocRouter);

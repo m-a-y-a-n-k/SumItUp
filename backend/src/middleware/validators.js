@@ -26,4 +26,22 @@ const validateSpendToken = [
   },
 ];
 
-module.exports = { validateEarnToken, validateSpendToken };
+// Validation middleware
+const validateSignup = [
+  body("email").isEmail().withMessage("Invalid email address"),
+  body("password")
+    .isLength({ min: 6 })
+    .withMessage("Password must be at least 6 characters long"),
+];
+
+const validateLogin = [
+  body("email").isEmail().withMessage("Invalid email address"),
+  body("password").exists().withMessage("Password is required"),
+];
+
+module.exports = {
+  validateEarnToken,
+  validateSpendToken,
+  validateLogin,
+  validateSignup,
+};

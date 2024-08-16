@@ -1,8 +1,7 @@
-const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../../models/User");
-const { jwtSecret } = require("../../../config");
 
+// Login method
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -11,33 +10,23 @@ const login = async (req, res) => {
   }
 
   try {
-    // Check if user exists based on email
-    const user = await User.findOne({ email });
-
-    // Handle SSO login
+    const user = await User.findByEmail(email);
     if (!user) {
-      // Logic to handle SSO login
-      // Redirect or return response based on SSO login flow
       return res.status(401).json({ error: "User not found" });
     }
 
-    // Handle email/password login
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
-    // Return JWT token in response
-    return res.status(200).json({ token });
+    res.status(200).json({ token });
   } catch (error) {
-    console.error("Error logging in:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: "Error logging in" });
   }
 };
 
