@@ -1,10 +1,12 @@
 const DeepSpeech = require("deepspeech");
 const convertMP3toWAV = require("./convertMP3toWAV");
 const fs = require("fs");
+const path = require("path");
+const ROOT_DIR = "src/utils/audio/audios/";
 
 const wavOutputPath = "src/utils/audio/audios/output.wav";
 
-async function convertAudioToText(audioFilePath, audioFormat) {
+async function convertAudioToText(audioFileName, audioFormat) {
   let audioData = Buffer.from("");
 
   // Load the DeepSpeech model without specifying model and scorer paths
@@ -12,6 +14,8 @@ async function convertAudioToText(audioFilePath, audioFormat) {
 
   // Load the language model scorer without specifying scorer path
   model.enableExternalScorer();
+
+  const audioFilePath = path.resolve(ROOT_DIR, audioFileName);
 
   if (audioFormat === "mp3") {
     await convertMP3toWAV(audioFilePath, wavOutputPath);

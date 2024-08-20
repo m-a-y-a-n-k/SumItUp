@@ -33,7 +33,7 @@ describe("Summary Controller - Audio Content", () => {
 
     it("should return error if audio file not found", async () => {
       req.body.audioData = {
-        audioFilePath: "invalid/path/to/audio.mp3",
+        audioFileName: "invalid/path/to/audio.mp3",
         format: "mp3",
       };
       sinon.stub(fs, "existsSync").returns(false);
@@ -45,7 +45,7 @@ describe("Summary Controller - Audio Content", () => {
 
     it("should return error if audio format not supported", async () => {
       req.body.audioData = {
-        audioFilePath: "valid/path/to/audio.mp3",
+        audioFileName: "valid/path/to/audio.mp3",
         format: "unsupported_format",
       };
       sinon.stub(fs, "existsSync").returns(true);
@@ -57,7 +57,7 @@ describe("Summary Controller - Audio Content", () => {
 
     it("should return error if no text found in the audio", async () => {
       req.body.audioData = {
-        audioFilePath: "src/utils/audio/audios/no-speech.mp3",
+        audioFileName: "no-speech.mp3",
         format: "mp3",
       };
       sinon.stub(fs, "existsSync").returns(true);
@@ -71,7 +71,7 @@ describe("Summary Controller - Audio Content", () => {
 
     it("should generate summary from text", async () => {
       req.body.audioData = {
-        audioFilePath: "valid/path/to/audio.mp3",
+        audioFileName: "valid/path/to/audio.mp3",
         format: "mp3",
       };
       sinon.stub(fs, "existsSync").returns(true);
@@ -90,7 +90,7 @@ describe("Summary Controller - Audio Content", () => {
 
     it("should handle internal server error", async () => {
       req.body.audioData = {
-        audioFilePath: "valid/path/to/audio.mp3",
+        audioFileName: "valid/path/to/audio.mp3",
         format: "mp3",
       };
       sinon.stub(fs, "existsSync").returns(true);

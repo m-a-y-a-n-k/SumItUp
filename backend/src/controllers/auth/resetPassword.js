@@ -15,7 +15,7 @@ const resetPassword = async (req, res) => {
       });
     }
     const user = await User.findOne({
-      resetToken: token,
+      resetToken: { $eq: token },
       resetTokenExpiry: { $gt: Date.now() },
     });
     if (!user) {

@@ -1,13 +1,16 @@
 const fs = require("fs");
+const path = require("path");
 const textUtils = require("../../utils/text");
 const audioUtils = require("../../utils/audio");
+
+const ROOT_DIR = "src/utils/audio/audios/";
 
 const generateAudioSummary = async (req, res) => {
   try {
     const { audioData } = req.body;
 
     // check if valid audioData provided
-    if (!audioData || !audioData.audioFilePath || !audioData.format) {
+    if (!audioData || !audioData.audioFileName || !audioData.format) {
       return res.status(400).json({ error: "Invalid audio data provided." });
     }
 
@@ -17,13 +20,13 @@ const generateAudioSummary = async (req, res) => {
     }
 
     // Check if the audio file exists
-    if (!fs.existsSync(audioData.audioFilePath)) {
+    if (!fs.existsSync(path.resolve(ROOT_DIR, audioData.audioFileName))) {
       return res.status(400).json({ error: "Audio file not found." });
     }
 
     // Convert audio to text asynchronously
     const textFromAudio = await audioUtils.convertAudioToText(
-      audioData.audioFilePath,
+      audioData.audioFileName,
       audioData.format
     );
 

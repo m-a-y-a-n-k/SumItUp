@@ -8,7 +8,7 @@ const googleCallback = async (req, res) => {
 
   try {
     // Check if the user already exists in the database
-    let existingUser = await User.findOne({ email: user.email });
+    let existingUser = await User.findOne({ email: { $eq: user.email } });
 
     if (!existingUser) {
       // Create a new user if not found
@@ -39,7 +39,7 @@ const githubCallback = async (req, res) => {
   const user = req.user;
 
   try {
-    let existingUser = await User.findOne({ email: user.email });
+    let existingUser = await User.findOne({ email: { $eq: user.email } });
 
     if (!existingUser) {
       existingUser = new User({
@@ -67,7 +67,7 @@ const facebookCallback = async (req, res) => {
   const user = req.user;
 
   try {
-    let existingUser = await User.findOne({ email: user.email });
+    let existingUser = await User.findOne({ email: { $eq: user.email } });
 
     if (!existingUser) {
       existingUser = new User({

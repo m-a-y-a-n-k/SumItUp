@@ -56,7 +56,7 @@ userSchema.methods.generateVerificationToken = function () {
 
 // Static method to find by email
 userSchema.statics.findByEmail = function (email) {
-  return this.findOne({ email });
+  return this.findOne({ email: { $eq: email } });
 };
 
 module.exports = mongoose.model("User", userSchema);
