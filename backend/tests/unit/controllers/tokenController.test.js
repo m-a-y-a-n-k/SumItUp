@@ -56,7 +56,7 @@ describe("Token Controller", () => {
 
     it("should return 404 if user is not found", async () => {
       User.findById.resolves(null);
-      cache.get.callsFake((key) => null);
+      cache.get.callsFake(() => null);
 
       req.body.adId = "someAdId";
       await tokenController.earnTokens(req, res);
@@ -113,7 +113,7 @@ describe("Token Controller", () => {
 
     it("should return 404 if user is not found", async () => {
       User.findById.resolves(null);
-      cache.get.callsFake((key) => null);
+      cache.get.callsFake(() => null);
 
       req.body.tokens = 50;
       await tokenController.spendTokens(req, res);

@@ -12,7 +12,8 @@
     "test:e2e": "cypress run",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e",
     "test:coverage": "istanbul cover _mocha -- test/unit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "keywords": [],
   "author": "",
@@ -50,7 +51,7 @@
     "@babel/preset-env": "^7.15.8",
     "chai": "^4.3.4",
     "cypress": "^9.2.0",
-    "eslint": "^8.6.0",
+    "eslint": "^8.57.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-mocha": "^8.0.0",

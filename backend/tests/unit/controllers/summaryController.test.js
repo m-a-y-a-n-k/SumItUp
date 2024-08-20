@@ -9,7 +9,7 @@ const textUtils = require("../../../src/utils/text");
 
 describe("Summary Controller - Audio Content", () => {
   describe("generateAudioSummary", () => {
-    let req, res, next;
+    let req, res;
 
     beforeEach(() => {
       req = { body: {} };
@@ -17,7 +17,6 @@ describe("Summary Controller - Audio Content", () => {
         status: sinon.stub().returnsThis(),
         json: sinon.spy(),
       };
-      next = sinon.spy();
     });
 
     afterEach(() => {

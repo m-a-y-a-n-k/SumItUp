@@ -1,5 +1,5 @@
 const searchController = {
-  async fuzzySearch(req, res) {
+  async fuzzySearch() {
     // Logic for fuzzy search
   },
 };

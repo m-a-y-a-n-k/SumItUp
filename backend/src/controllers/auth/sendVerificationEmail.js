@@ -1,4 +1,3 @@
-const crypto = require("crypto");
 const User = require("../../models/User");
 const authService = require("../../services/auth");
 

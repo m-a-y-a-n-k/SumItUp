@@ -4,15 +4,15 @@ const generateAudioSummary = require("./generateAudioSummary.js");
 const summaryController = {
   generateAudioSummary,
   generateImageSummary,
-  generateVideoSummary: async (req, res) => {
+  generateVideoSummary: async () => {
     // Implementation for generating video summary
   },
 
-  generateGifSummary: async (req, res) => {
+  generateGifSummary: async () => {
     // Implementation for generating GIF summary
   },
 
-  generateUrlSummary: async (req, res) => {
+  generateUrlSummary: async () => {
     // Implementation for generating URL summary
   },
 
@@ -22,7 +22,7 @@ const summaryController = {
       // This could include fetching book data from a database, processing it, and generating a summary
 
       // Placeholder logic for demonstration purposes
-      const bookSummary = "Generated book summary";
+      const bookSummary = `Generated book summary for ${req.body.book}`;
       res.status(200).json({ summary: bookSummary });
     } catch (error) {
       console.error("Error generating book summary:", error);
@@ -30,7 +30,7 @@ const summaryController = {
     }
   },
 
-  async generatePDFSummary(req, res) {
+  async generatePDFSummary() {
     // Implementation for generating pdf summary
   },
 };
