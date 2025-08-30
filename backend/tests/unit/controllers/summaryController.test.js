@@ -156,50 +156,208 @@ describe("Summary Controller - Image Content", () => {
 
 describe("Summary Controller - Video Content", () => {
   describe("generateVideoSummary", () => {
-    it("should generate a summary for video content", async () => {
-      // Test logic
+    let req, res;
+
+    beforeEach(() => {
+      req = { body: {} };
+      res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
     });
 
-    // Add more tests for different scenarios related to video content
+    it("should return error if video URL is missing", async () => {
+      await summaryController.generateVideoSummary(req, res);
+      expect(res.status.calledWith(400)).to.be.true;
+      expect(res.json.calledWith({ error: "Video URL is required" })).to.be.true;
+    });
+
+    it("should return placeholder summary for valid video URL", async () => {
+      req.body.videoData = { videoUrl: "https://example.com/video.mp4" };
+      await summaryController.generateVideoSummary(req, res);
+      expect(res.status.calledWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      const response = res.json.getCall(0).args[0];
+      expect(response).to.have.property('summary');
+      expect(response).to.have.property('message');
+      expect(response.summary).to.include('Video summary for https://example.com/video.mp4');
+    });
+
+    it("should handle internal server error", async () => {
+      // Simulate an error by passing invalid data that causes an exception
+      req.body = null;
+      await summaryController.generateVideoSummary(req, res);
+      expect(res.status.calledWith(500)).to.be.true;
+      expect(res.json.calledWith({ error: "Internal Server Error" })).to.be.true;
+    });
   });
 });
 
 describe("Summary Controller - GIF Content", () => {
   describe("generateGifSummary", () => {
-    it("should generate a summary for GIF content", async () => {
-      // Test logic
+    let req, res;
+
+    beforeEach(() => {
+      req = { body: {} };
+      res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
     });
 
-    // Add more tests for different scenarios related to GIF content
+    it("should return error if GIF URL is missing", async () => {
+      await summaryController.generateGifSummary(req, res);
+      expect(res.status.calledWith(400)).to.be.true;
+      expect(res.json.calledWith({ error: "GIF URL is required" })).to.be.true;
+    });
+
+    it("should return placeholder summary for valid GIF URL", async () => {
+      req.body.gifData = { gifUrl: "https://example.com/animation.gif" };
+      await summaryController.generateGifSummary(req, res);
+      expect(res.status.calledWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      const response = res.json.getCall(0).args[0];
+      expect(response).to.have.property('summary');
+      expect(response).to.have.property('message');
+      expect(response.summary).to.include('GIF summary for https://example.com/animation.gif');
+    });
+
+    it("should handle internal server error", async () => {
+      req.body = null;
+      await summaryController.generateGifSummary(req, res);
+      expect(res.status.calledWith(500)).to.be.true;
+      expect(res.json.calledWith({ error: "Internal Server Error" })).to.be.true;
+    });
   });
 });
 
 describe("Summary Controller - URL Content", () => {
   describe("generateUrlSummary", () => {
-    it("should generate a summary for URL content", async () => {
-      // Test logic
+    let req, res;
+
+    beforeEach(() => {
+      req = { body: {} };
+      res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
     });
 
-    // Add more tests for different scenarios related to URL content
+    it("should return error if URL is missing", async () => {
+      await summaryController.generateUrlSummary(req, res);
+      expect(res.status.calledWith(400)).to.be.true;
+      expect(res.json.calledWith({ error: "URL is required" })).to.be.true;
+    });
+
+    it("should return error for invalid URL format", async () => {
+      req.body.url = "invalid-url";
+      await summaryController.generateUrlSummary(req, res);
+      expect(res.status.calledWith(400)).to.be.true;
+      expect(res.json.calledWith({ error: "Invalid URL format" })).to.be.true;
+    });
+
+    it("should return placeholder summary for valid URL", async () => {
+      req.body.url = "https://example.com/article";
+      await summaryController.generateUrlSummary(req, res);
+      expect(res.status.calledWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      const response = res.json.getCall(0).args[0];
+      expect(response).to.have.property('summary');
+      expect(response).to.have.property('message');
+      expect(response.summary).to.include('URL summary for https://example.com/article');
+    });
+
+    it("should handle internal server error", async () => {
+      req.body = null;
+      await summaryController.generateUrlSummary(req, res);
+      expect(res.status.calledWith(500)).to.be.true;
+      expect(res.json.calledWith({ error: "Internal Server Error" })).to.be.true;
+    });
   });
 });
 
 describe("Summary Controller - Book Content", () => {
   describe("generateBookSummary", () => {
-    it("should generate a summary for Book content", async () => {
-      // Test logic
+    let req, res;
+
+    beforeEach(() => {
+      req = { body: {} };
+      res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
     });
 
-    // Add more tests for different scenarios related to URL content
+    it("should generate a summary for Book content", async () => {
+      req.body.book = "Sample Book Title";
+      await summaryController.generateBookSummary(req, res);
+      expect(res.status.calledWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      const response = res.json.getCall(0).args[0];
+      expect(response).to.have.property('summary');
+      expect(response.summary).to.include('Generated book summary for Sample Book Title');
+    });
+
+    it("should handle internal server error", async () => {
+      req.body = null;
+      await summaryController.generateBookSummary(req, res);
+      expect(res.status.calledWith(500)).to.be.true;
+      expect(res.json.calledWith({ error: "Internal Server Error" })).to.be.true;
+    });
   });
 });
 
 describe("Summary Controller - PDF Content", () => {
   describe("generatePDFSummary", () => {
-    it("should generate a summary for PDF content", async () => {
-      // Test logic
+    let req, res;
+
+    beforeEach(() => {
+      req = { body: {} };
+      res = {
+        status: sinon.stub().returnsThis(),
+        json: sinon.spy(),
+      };
     });
 
-    // Add more tests for different scenarios related to URL content
+    afterEach(() => {
+      sinon.restore();
+    });
+
+    it("should return error if PDF data is missing", async () => {
+      await summaryController.generatePDFSummary(req, res);
+      expect(res.status.calledWith(400)).to.be.true;
+      expect(res.json.calledWith({ error: "PDF URL or text content is required" })).to.be.true;
+    });
+
+    it("should generate summary from provided text", async () => {
+      req.body.pdfData = { pdfText: "This is sample PDF text content." };
+      sinon.stub(textUtils, "generateSummaryFromText").returns("Generated PDF summary");
+      
+      await summaryController.generatePDFSummary(req, res);
+      expect(res.status.calledWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      const response = res.json.getCall(0).args[0];
+      expect(response).to.have.property('summary');
+      expect(response.summary).to.equal('Generated PDF summary');
+    });
+
+    it("should return placeholder for PDF URL", async () => {
+      req.body.pdfData = { pdfUrl: "https://example.com/document.pdf" };
+      sinon.stub(textUtils, "generateSummaryFromText").returns("Generated summary");
+      
+      await summaryController.generatePDFSummary(req, res);
+      expect(res.status.calledWith(200)).to.be.true;
+      expect(res.json.calledOnce).to.be.true;
+      const response = res.json.getCall(0).args[0];
+      expect(response).to.have.property('summary');
+      expect(response).to.have.property('message');
+    });
+
+    it("should handle internal server error", async () => {
+      req.body = null;
+      await summaryController.generatePDFSummary(req, res);
+      expect(res.status.calledWith(500)).to.be.true;
+      expect(res.json.calledWith({ error: "Internal Server Error" })).to.be.true;
+    });
   });
 });

@@ -17,6 +17,9 @@ const summaryRouter = require("./src/routes/summary");
 const pdfRouter = require("./src/routes/pdf");
 const searchRouter = require("./src/routes/search");
 const tokenRouter = require("./src/routes/token");
+const fileRouter = require("./src/routes/file");
+const contentRouter = require("./src/routes/content");
+const userRouter = require("./src/routes/user");
 
 require("dotenv").config();
 require("./db"); // Import the db connection
@@ -58,6 +61,9 @@ app.use("/api/summary", summaryRouter);
 app.use("/api/pdf", pdfRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/token", tokenRouter);
+app.use("/api/files", fileRouter);
+app.use("/api/content", contentRouter);
+app.use("/api/user", userRouter);
 
 // Server Initialization
 const PORT = process.env.PORT || 3000;
