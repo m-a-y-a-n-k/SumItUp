@@ -1,5 +1,4 @@
 const fs = require("fs");
-const path = require("path");
 const chai = require("chai");
 const { expect } = chai;
 const sinon = require("sinon");

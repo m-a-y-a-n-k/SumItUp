@@ -158,7 +158,6 @@ describe("Search Controller", () => {
     it("should handle internal server error", async () => {
       req.query.title = "Test Book";
       // Simulate an error condition
-      const originalQuery = req.query;
       req.query = null;
 
       await searchController.searchBooks(req, res);

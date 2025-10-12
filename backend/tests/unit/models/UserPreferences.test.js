@@ -198,7 +198,6 @@ describe("UserPreferences Model", () => {
       });
 
       it("should ignore invalid schema paths", async () => {
-        const originalLength = preferences.defaultSummaryLength;
         const updates = {
           invalidField: "value",
           defaultSummaryLength: "short"
