@@ -1,5 +1,7 @@
-const cache = require("../../cache"); // Import the central cache
-const User = require("../../models/User");
+const cacheModule = require("../../cache");
+const cache = cacheModule.default || cacheModule; // Import the central cache
+const UserModule = require("../../models/User");
+const User = UserModule.default || UserModule;
 
 async function checkAdEligibility(req, res) {
   try {

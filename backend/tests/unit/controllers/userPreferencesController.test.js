@@ -5,11 +5,14 @@ const preferencesController = require("../../../src/controllers/user/preferences
 const UserPreferences = require("../../../src/models/UserPreferences");
 
 describe("User Preferences Controller", () => {
-  let req, res;
+  let req, res, testUserId;
 
   beforeEach(() => {
+    // Generate valid MongoDB ObjectId for testing
+    testUserId = global.createObjectId ? global.createObjectId() : "507f1f77bcf86cd799439011";
+    
     req = {
-      user: { id: "user123" },
+      user: { id: testUserId },
       body: {}
     };
     res = {
@@ -73,7 +76,7 @@ describe("User Preferences Controller", () => {
       sinon.stub(UserPreferences, "createDefault").resolves(mockDefaultPreferences);
 
       await preferencesController.getPreferences(req, res);
-      expect(UserPreferences.createDefault.calledWith("user123")).to.be.true;
+      expect(UserPreferences.createDefault.calledWith(testUserId)).to.be.true;
       expect(res.status.calledWith(200)).to.be.true;
     });
 
@@ -129,7 +132,7 @@ describe("User Preferences Controller", () => {
       sinon.stub(UserPreferences, "createDefault").resolves(mockDefaultPreferences);
 
       await preferencesController.updatePreferences(req, res);
-      expect(UserPreferences.createDefault.calledWith("user123")).to.be.true;
+      expect(UserPreferences.createDefault.calledWith(testUserId)).to.be.true;
       expect(mockDefaultPreferences.updatePreferences.calledWith(req.body)).to.be.true;
     });
   });
@@ -146,8 +149,8 @@ describe("User Preferences Controller", () => {
       sinon.stub(UserPreferences, "createDefault").resolves(mockDefaultPreferences);
 
       await preferencesController.resetPreferences(req, res);
-      expect(UserPreferences.deleteOne.calledWith({ userId: "user123" })).to.be.true;
-      expect(UserPreferences.createDefault.calledWith("user123")).to.be.true;
+      expect(UserPreferences.deleteOne.calledWith({ userId: testUserId })).to.be.true;
+      expect(UserPreferences.createDefault.calledWith(testUserId)).to.be.true;
       expect(res.status.calledWith(200)).to.be.true;
       const response = res.json.getCall(0).args[0];
       expect(response.message).to.equal("Preferences reset to default successfully");
@@ -193,7 +196,7 @@ describe("User Preferences Controller", () => {
       sinon.stub(UserPreferences, "createDefault").resolves(mockDefaultPreferences);
 
       await preferencesController.addInterests(req, res);
-      expect(UserPreferences.createDefault.calledWith("user123")).to.be.true;
+      expect(UserPreferences.createDefault.calledWith(testUserId)).to.be.true;
     });
   });
 

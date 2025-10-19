@@ -1,4 +1,5 @@
-const UserPreferences = require("../../models/UserPreferences");
+const UserPreferencesModule = require("../../models/UserPreferences");
+const UserPreferences = UserPreferencesModule.default || UserPreferencesModule;
 
 const preferencesController = {
   // Get user preferences

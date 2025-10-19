@@ -5,11 +5,15 @@ const contentController = require("../../../src/controllers/content");
 const Content = require("../../../src/models/Content");
 
 describe("Content Controller", () => {
-  let req, res;
+  let req, res, testUserId, testContentId;
 
   beforeEach(() => {
+    // Generate valid MongoDB ObjectIds for testing
+    testUserId = global.createObjectId ? global.createObjectId() : "507f1f77bcf86cd799439011";
+    testContentId = global.createObjectId ? global.createObjectId() : "507f1f77bcf86cd799439012";
+    
     req = {
-      user: { id: "user123" },
+      user: { id: testUserId },
       body: {},
       params: {},
       query: {}
@@ -116,17 +120,21 @@ describe("Content Controller", () => {
       sinon.stub(Content, "countDocuments").resolves(0);
 
       await contentController.getHistory(req, res);
-      expect(Content.findByUserId.calledWith("user123", {
+      
+      // Check that findByUserId was called with the correct options (userId is converted to ObjectId internally)
+      expect(Content.findByUserId.called).to.be.true;
+      const callArgs = Content.findByUserId.getCall(0).args;
+      expect(callArgs[1]).to.deep.include({
         limit: 10,
         offset: 0,
         contentType: "audio"
-      })).to.be.true;
+      });
     });
   });
 
   describe("getContent", () => {
     it("should return specific content", async () => {
-      req.params.contentId = "content123";
+      req.params.contentId = testContentId;
 
       const mockContent = {
         _id: "content123",
@@ -152,7 +160,7 @@ describe("Content Controller", () => {
     });
 
     it("should return error if content not found", async () => {
-      req.params.contentId = "nonexistent";
+      req.params.contentId = global.createObjectId ? global.createObjectId() : "507f1f77bcf86cd799439099";
       sinon.stub(Content, "findOne").resolves(null);
 
       await contentController.getContent(req, res);
@@ -163,7 +171,7 @@ describe("Content Controller", () => {
 
   describe("toggleFavorite", () => {
     it("should toggle favorite status", async () => {
-      req.params.contentId = "content123";
+      req.params.contentId = testContentId;
 
       const mockContent = {
         _id: "content123",
@@ -185,7 +193,7 @@ describe("Content Controller", () => {
     });
 
     it("should return error if content not found", async () => {
-      req.params.contentId = "nonexistent";
+      req.params.contentId = global.createObjectId ? global.createObjectId() : "507f1f77bcf86cd799439098";
       sinon.stub(Content, "findOne").resolves(null);
 
       await contentController.toggleFavorite(req, res);
@@ -196,7 +204,7 @@ describe("Content Controller", () => {
 
   describe("addTags", () => {
     it("should add tags to content", async () => {
-      req.params.contentId = "content123";
+      req.params.contentId = testContentId;
       req.body.tags = ["new-tag", "another-tag"];
 
       const mockContent = {
@@ -219,7 +227,7 @@ describe("Content Controller", () => {
     });
 
     it("should return error if tags is not an array", async () => {
-      req.params.contentId = "content123";
+      req.params.contentId = testContentId;
       req.body.tags = "not-an-array";
 
       await contentController.addTags(req, res);
@@ -230,7 +238,7 @@ describe("Content Controller", () => {
 
   describe("deleteContent", () => {
     it("should successfully delete content", async () => {
-      req.params.contentId = "content123";
+      req.params.contentId = testContentId;
       sinon.stub(Content, "deleteOne").resolves({ deletedCount: 1 });
 
       await contentController.deleteContent(req, res);
@@ -239,7 +247,7 @@ describe("Content Controller", () => {
     });
 
     it("should return error if content not found", async () => {
-      req.params.contentId = "nonexistent";
+      req.params.contentId = global.createObjectId ? global.createObjectId() : "507f1f77bcf86cd799439097";
       sinon.stub(Content, "deleteOne").resolves({ deletedCount: 0 });
 
       await contentController.deleteContent(req, res);

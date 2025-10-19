@@ -372,7 +372,7 @@ describe("Auth Controller", () => {
     it("should reset the password if the token is valid", async () => {
       const req = {
         body: {
-          resetToken: "valid-token",
+          token: "valid-token",
           newPassword: "NewPassword1",
         },
       };
@@ -383,11 +383,10 @@ describe("Auth Controller", () => {
 
       sinon.stub(User, "findOne").resolves({
         resetToken: "valid-token",
-        resetTokenExpiry: Date.now() + 3600000, // 1 hour
+        resetTokenExpiry: new Date(Date.now() + 3600000), // 1 hour from now
         password: "oldPassword",
         save: sinon.stub().resolves(),
       });
-      sinon.stub(bcrypt, "hash").resolves("hashedPassword");
 
       await authController.resetPassword(req, res);
 
@@ -397,13 +396,12 @@ describe("Auth Controller", () => {
         .be.true;
 
       User.findOne.restore();
-      bcrypt.hash.restore();
     });
 
     it("should return 400 if the token is invalid", async () => {
       const req = {
         body: {
-          resetToken: "invalid-token",
+          token: "invalid-token",
           newPassword: "NewPassword1",
         },
       };
@@ -427,7 +425,7 @@ describe("Auth Controller", () => {
     it("should return 400 if the password is weak", async () => {
       const req = {
         body: {
-          resetToken: "valid-token",
+          token: "valid-token",
           newPassword: "short",
         },
       };
@@ -469,7 +467,9 @@ describe("Auth Controller", () => {
 
       sinon.stub(User, "findByEmail").resolves({
         email: "test@example.com",
+        verified: false,
         generateVerificationToken: sinon.stub().returns("verification-token"),
+        save: sinon.stub().resolves(),
       });
 
       sinon.stub(authService, "sendVerificationEmail").resolves();
