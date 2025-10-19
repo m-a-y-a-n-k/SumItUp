@@ -1,27 +1,32 @@
-const fs = require("fs");
-const path = require("path");
-const textUtils = require("../../utils/text");
-const audioUtils = require("../../utils/audio");
+import fs from "fs";
+import path from "path";
+import textUtils from "../../utils/text";
+import audioUtils from "../../utils/audio";
+import { AuthenticatedRequest } from "@/types";
+import { Response } from "express";
 
 const ROOT_DIR = "src/utils/audio/audios/";
 
-const generateAudioSummary = async (req, res) => {
+export async function generateAudioSummary(req: AuthenticatedRequest, res: Response): Promise<void> {
   try {
     const { audioData } = req.body;
 
     // check if valid audioData provided
     if (!audioData || !audioData.audioFileName || !audioData.format) {
-      return res.status(400).json({ error: "Invalid audio data provided." });
+      res.status(400).json({ error: "Invalid audio data provided." });
+      return;
     }
 
     // check if format is valid
     if (!["mp3", "wav"].includes(audioData.format)) {
-      return res.status(400).json({ error: "Audio format not supported" });
+      res.status(400).json({ error: "Audio format not supported" });
+      return;
     }
 
     // Check if the audio file exists
     if (!fs.existsSync(path.resolve(ROOT_DIR, audioData.audioFileName))) {
-      return res.status(400).json({ error: "Audio file not found." });
+      res.status(400).json({ error: "Audio file not found." });
+      return;
     }
 
     // Convert audio to text asynchronously
@@ -31,7 +36,8 @@ const generateAudioSummary = async (req, res) => {
     );
 
     if (!textFromAudio) {
-      return res.status(400).json({ error: "No text found in the audio." });
+      res.status(400).json({ error: "No text found in the audio." });
+      return;
     }
 
     // Generate summary from text
@@ -44,4 +50,4 @@ const generateAudioSummary = async (req, res) => {
   }
 };
 
-module.exports = generateAudioSummary;
+export default generateAudioSummary;

@@ -1,4 +1,4 @@
-const checkAdEligibility = require("./checkAdEligibility");
+import { checkAdEligibility } from "./checkAdEligibility";
 
 const adController = {
   checkAdEligibility,

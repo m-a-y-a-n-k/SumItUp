@@ -1,6 +1,8 @@
-const imageService = require("../../services/summary/image");
+import imageService from "../../services/summary/image";
+import { AuthenticatedRequest } from "@/types";
+import { Response } from "express";
 
-async function generateImageSummary(req, res) {
+export async function generateImageSummary(req: AuthenticatedRequest, res: Response): Promise<void> {
   try {
     const imageData = req.body.imageData; // Assuming image data is sent in the request body
     const summary = await imageService.generateSummaryFromImage(imageData);
@@ -9,5 +11,3 @@ async function generateImageSummary(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
-
-module.exports = generateImageSummary;

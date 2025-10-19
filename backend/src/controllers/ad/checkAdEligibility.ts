@@ -1,9 +1,12 @@
-const cacheModule = require("../../cache");
-const cache = cacheModule.default || cacheModule; // Import the central cache
-const UserModule = require("../../models/User");
-const User = UserModule.default || UserModule;
+import cache from "../../cache";
+import User from "../../models/User";
+import { Response } from "express";
+import { AuthenticatedRequest } from "../../types";
 
-async function checkAdEligibility(req, res) {
+export async function checkAdEligibility(
+  req: AuthenticatedRequest,
+  res: Response
+): Promise<void> {
   try {
     const { id } = req.user; // Extract id from authenticated user
 
@@ -13,7 +16,8 @@ async function checkAdEligibility(req, res) {
       // If not cached, fetch from the database
       const user = await User.findById(id);
       if (!user) {
-        return res.status(404).json({ error: "User not found" });
+        res.status(404).json({ error: "User not found" });
+        return;
       }
 
       // Cache the eligibility status
@@ -28,5 +32,3 @@ async function checkAdEligibility(req, res) {
     res.status(500).json({ error: "Failed to check ad eligibility" });
   }
 }
-
-module.exports = checkAdEligibility;
