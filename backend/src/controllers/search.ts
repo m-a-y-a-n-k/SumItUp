@@ -1,7 +1,41 @@
+import { Request, Response } from "express";
+
+interface FuzzySearchQuery {
+  query?: string;
+  type?: string;
+  limit?: string;
+}
+
+interface SearchResult {
+  id: string;
+  title: string;
+  type: string;
+  summary: string;
+  relevanceScore: number;
+}
+
+interface BookSearchQuery {
+  title?: string;
+  author?: string;
+  genre?: string;
+  limit?: string;
+}
+
+interface Book {
+  id: string;
+  title: string;
+  author: string;
+  genre: string;
+  isbn: string;
+  publishYear: number;
+  summary: string;
+  available: boolean;
+}
+
 const searchController = {
-  async fuzzySearch(req, res) {
+  async fuzzySearch(req: Request, res: Response): Promise<Response> {
     try {
-      const { query, type = "all", limit = 10 } = req.query;
+      const { query, type = "all", limit = "10" } = req.query as FuzzySearchQuery;
       
       if (!query || query.trim() === "") {
         return res.status(400).json({ error: "Search query is required" });
@@ -9,7 +43,7 @@ const searchController = {
 
       // Basic fuzzy search implementation
       // TODO: Integrate with actual content database or external APIs
-      const mockResults = [
+      const mockResults: SearchResult[] = [
         {
           id: "1",
           title: `Book: "${query}" - A Comprehensive Guide`,
@@ -42,7 +76,7 @@ const searchController = {
       // Apply limit
       const limitedResults = filteredResults.slice(0, parseInt(limit));
 
-      res.status(200).json({
+      return res.status(200).json({
         query,
         type,
         results: limitedResults,
@@ -51,20 +85,20 @@ const searchController = {
       });
     } catch (error) {
       console.error("Error performing fuzzy search:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   },
 
-  async searchBooks(req, res) {
+  async searchBooks(req: Request, res: Response): Promise<Response> {
     try {
-      const { title, author, genre, limit = 10 } = req.query;
+      const { title, author, genre, limit = "10" } = req.query as BookSearchQuery;
       
       if (!title && !author && !genre) {
         return res.status(400).json({ error: "At least one search parameter (title, author, or genre) is required" });
       }
 
       // Mock book search results
-      const mockBooks = [
+      const mockBooks: Book[] = [
         {
           id: "book_1",
           title: title ? `${title}: The Complete Edition` : "Sample Book Title",
@@ -89,7 +123,7 @@ const searchController = {
 
       const limitedBooks = mockBooks.slice(0, parseInt(limit));
 
-      res.status(200).json({
+      return res.status(200).json({
         searchParams: { title, author, genre },
         books: limitedBooks,
         totalFound: mockBooks.length,
@@ -97,9 +131,10 @@ const searchController = {
       });
     } catch (error) {
       console.error("Error searching books:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 };
 
-module.exports = searchController;
+export default searchController;
+

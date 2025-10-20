@@ -1,11 +1,42 @@
-const UserPreferencesModule = require("../../models/UserPreferences");
-const UserPreferences = UserPreferencesModule.default || UserPreferencesModule;
+import { Response } from "express";
+import UserPreferences, { IUserPreferences } from "../../models/UserPreferences";
+import { AuthenticatedRequest } from "../../types";
+
+interface UpdatePreferencesBody {
+  defaultSummaryLength?: 'short' | 'medium' | 'long';
+  summaryStyle?: 'bullet-points' | 'paragraph' | 'keywords' | 'abstract';
+  preferredLanguage?: string;
+  processingQuality?: 'fast' | 'balanced' | 'high';
+  autoSaveContent?: boolean;
+  defaultPrivacy?: 'private' | 'public';
+  emailNotifications?: boolean;
+  processingNotifications?: boolean;
+  weeklyDigest?: boolean;
+  theme?: 'light' | 'dark' | 'auto';
+  itemsPerPage?: number;
+  favoriteContentTypes?: string[];
+  interests?: string[];
+}
+
+interface UpdatePreferencesRequest extends AuthenticatedRequest {
+  body: UpdatePreferencesBody;
+}
+
+interface InterestsRequest extends AuthenticatedRequest {
+  body: {
+    interests: string[];
+  };
+}
 
 const preferencesController = {
   // Get user preferences
-  async getPreferences(req, res) {
+  async getPreferences(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
       
       let preferences = await UserPreferences.findByUserId(userId);
       
@@ -14,7 +45,7 @@ const preferencesController = {
         preferences = await UserPreferences.createDefault(userId);
       }
       
-      res.status(200).json({
+      return res.status(200).json({
         preferences: {
           defaultSummaryLength: preferences.defaultSummaryLength,
           summaryStyle: preferences.summaryStyle,
@@ -34,15 +65,19 @@ const preferencesController = {
       });
     } catch (error) {
       console.error("Error getting user preferences:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   },
 
   // Update user preferences
-  async updatePreferences(req, res) {
+  async updatePreferences(req: UpdatePreferencesRequest, res: Response): Promise<Response> {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
       const updates = req.body;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
       
       let preferences = await UserPreferences.findByUserId(userId);
       
@@ -51,10 +86,16 @@ const preferencesController = {
         preferences = await UserPreferences.createDefault(userId);
       }
       
-      // Update preferences
-      await preferences.updatePreferences(updates);
+      // Update preferences (handle favoriteContentTypes conversion)
+      if (updates.favoriteContentTypes) {
+        // Assuming you have a ContentType enum or type, map string[] to ContentType[]
+        // @ts-ignore Suppress if enum cast is not strict; adjust as needed per your model
+        updates.favoriteContentTypes = updates.favoriteContentTypes.map((type: string) => type as ContentType);
+      }
+
+      await preferences.updatePreferences(updates as Partial<IUserPreferences>);
       
-      res.status(200).json({
+      return res.status(200).json({
         message: "Preferences updated successfully",
         preferences: {
           defaultSummaryLength: preferences.defaultSummaryLength,
@@ -75,14 +116,18 @@ const preferencesController = {
       });
     } catch (error) {
       console.error("Error updating user preferences:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   },
 
   // Reset preferences to default
-  async resetPreferences(req, res) {
+  async resetPreferences(req: AuthenticatedRequest, res: Response): Promise<Response> {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
       
       // Delete existing preferences
       await UserPreferences.deleteOne({ userId });
@@ -90,7 +135,7 @@ const preferencesController = {
       // Create new default preferences
       const preferences = await UserPreferences.createDefault(userId);
       
-      res.status(200).json({
+      return res.status(200).json({
         message: "Preferences reset to default successfully",
         preferences: {
           defaultSummaryLength: preferences.defaultSummaryLength,
@@ -111,15 +156,19 @@ const preferencesController = {
       });
     } catch (error) {
       console.error("Error resetting user preferences:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   },
 
   // Add interests/tags
-  async addInterests(req, res) {
+  async addInterests(req: InterestsRequest, res: Response): Promise<Response> {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
       const { interests } = req.body;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
       
       if (!interests || !Array.isArray(interests)) {
         return res.status(400).json({ error: "Interests must be an array" });
@@ -137,21 +186,25 @@ const preferencesController = {
       
       await preferences.save();
       
-      res.status(200).json({
+      return res.status(200).json({
         message: "Interests added successfully",
         interests: preferences.interests
       });
     } catch (error) {
       console.error("Error adding interests:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   },
 
   // Remove interests/tags
-  async removeInterests(req, res) {
+  async removeInterests(req: InterestsRequest, res: Response): Promise<Response> {
     try {
-      const userId = req.user.id;
+      const userId = req.user?.id;
       const { interests } = req.body;
+      
+      if (!userId) {
+        return res.status(401).json({ error: "User not authenticated" });
+      }
       
       if (!interests || !Array.isArray(interests)) {
         return res.status(400).json({ error: "Interests must be an array" });
@@ -170,15 +223,16 @@ const preferencesController = {
       
       await preferences.save();
       
-      res.status(200).json({
+      return res.status(200).json({
         message: "Interests removed successfully",
         interests: preferences.interests
       });
     } catch (error) {
       console.error("Error removing interests:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+      return res.status(500).json({ error: "Internal Server Error" });
     }
   }
 };
 
-module.exports = preferencesController;
+export default preferencesController;
+

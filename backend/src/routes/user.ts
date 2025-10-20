@@ -1,8 +1,8 @@
-const express = require("express");
-const preferencesController = require("../controllers/user/preferences");
-const authMiddleware = require("../middleware/auth");
-const { body } = require("express-validator");
-const validateRequest = require("../middleware/validation");
+import express from "express";
+import preferencesController from "../controllers/user/preferences";
+import authMiddleware from "../middleware/auth";
+import { body } from "express-validator";
+import validateRequest from "../middleware/validation";
 
 const router = express.Router();
 
@@ -25,28 +25,29 @@ const validatePreferences = [
 ];
 
 // Get user preferences
-router.get("/preferences", authMiddleware, preferencesController.getPreferences);
+router.get("/preferences", authMiddleware as any, preferencesController.getPreferences as any);
 
 // Update user preferences
-router.put("/preferences", authMiddleware, validatePreferences, preferencesController.updatePreferences);
+router.put("/preferences", authMiddleware as any, validatePreferences, preferencesController.updatePreferences as any);
 
 // Reset preferences to default
-router.post("/preferences/reset", authMiddleware, preferencesController.resetPreferences);
+router.post("/preferences/reset", authMiddleware as any, preferencesController.resetPreferences as any);
 
 // Add interests
 router.post("/preferences/interests", 
-  authMiddleware,
+  authMiddleware as any,
   body("interests").isArray().withMessage("Interests must be an array"),
   validateRequest,
-  preferencesController.addInterests
+  preferencesController.addInterests as any
 );
 
 // Remove interests
 router.delete("/preferences/interests", 
-  authMiddleware,
+  authMiddleware as any,
   body("interests").isArray().withMessage("Interests must be an array"),
   validateRequest,
-  preferencesController.removeInterests
+  preferencesController.removeInterests as any
 );
 
-module.exports = router;
+export default router;
+

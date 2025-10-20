@@ -4,4 +4,4 @@ const adController = {
   checkAdEligibility,
 };
 
-module.exports = adController;
+export default adController;

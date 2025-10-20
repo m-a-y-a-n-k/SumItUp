@@ -1,7 +1,7 @@
-const express = require("express");
-const adController = require("../controllers/ad");
-const authMiddleware = require("../middleware/auth"); // Ensure to add this import
-const rateLimit = require("express-rate-limit"); // Ensure to add this import
+import express from "express";
+import adController from "../controllers/ad";
+import authMiddleware from "../middleware/auth";
+import rateLimit from "express-rate-limit";
 
 const router = express.Router();
 
@@ -15,9 +15,10 @@ const eligibilityLimiter = rateLimit({
 // Route to check ad eligibility for a user
 router.get(
   "/check-eligibility",
-  authMiddleware, // Protect the route
+  authMiddleware as any, // Protect the route
   eligibilityLimiter, // Rate limit the requests
-  adController.checkAdEligibility
+  adController.checkAdEligibility as any
 );
 
-module.exports = router;
+export default router;
+

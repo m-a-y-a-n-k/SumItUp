@@ -3,9 +3,10 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "@/navigator/AppNavigator";
@@ -53,6 +54,18 @@ const contentTypes = [
 ];
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const renderItem = ({ item }: { item: (typeof contentTypes)[0] }) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() =>
+        navigation.navigate(item.screen, { contentType: item.title })
+      }
+    >
+      <Image source={item.icon} style={styles.icon} />
+      <Text style={styles.cardText}>{item.title}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to SumItUp</Text>
@@ -60,27 +73,21 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         Select the content type you want to summarize
       </Text>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContainer}
-      >
-        {contentTypes.map((item) => (
-          <TouchableOpacity
-            key={item.title}
-            style={styles.card}
-            onPress={() =>
-              navigation.navigate(item.screen, { contentType: item.title })
-            }
-          >
-            <Image source={item.icon} style={styles.icon} />
-            <Text style={styles.cardText}>{item.title}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <FlatList
+        data={contentTypes}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.title}
+        numColumns={3}
+        columnWrapperStyle={styles.row}
+        contentContainerStyle={styles.gridContainer}
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
 };
+
+const { width } = Dimensions.get("window");
+const cardWidth = (width - 60) / 3; // 3 columns with spacing
 
 const styles = StyleSheet.create({
   container: {
@@ -100,17 +107,21 @@ const styles = StyleSheet.create({
     color: "gray",
     marginBottom: 20,
   },
-  scrollContainer: {
+  gridContainer: {
     paddingVertical: 10,
+    paddingBottom: 20,
+  },
+  row: {
+    justifyContent: "space-between",
+    marginBottom: 15,
   },
   card: {
     backgroundColor: "#1E293B",
-    width: 100,
-    height: 120,
+    width: cardWidth,
+    height: cardWidth * 1.2,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    marginRight: 15,
     padding: 10,
     shadowColor: "#000",
     shadowOpacity: 0.2,
@@ -128,6 +139,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     textAlign: "center",
+    fontSize: 14,
   },
 });
 

@@ -1,12 +1,34 @@
-const cacheModule = require("../cache");
-const cache = cacheModule.default || cacheModule; // Import the central cache
-const UserModule = require("../models/User");
-const User = UserModule.default || UserModule;
+import { Response } from "express";
+import cache from "../cache";
+import User from "../models/User";
+import { AuthenticatedRequest } from "../types";
+
+interface EarnTokensRequest extends AuthenticatedRequest {
+  body: {
+    adId: string;
+  };
+}
+
+interface SpendTokensRequest extends AuthenticatedRequest {
+  body: {
+    tokens: number;
+  };
+}
+
+interface CachedUserData {
+  tokens: number;
+  adEligible: boolean;
+}
 
 const tokenController = {
-  async earnTokens(req, res) {
+  async earnTokens(req: EarnTokensRequest, res: Response): Promise<Response> {
     try {
-      const { id } = req.user; // Extract id from authenticated user
+      const id = req.user?.id;
+      
+      if (!id) {
+        return res.status(401).send({ error: "User not authenticated" });
+      }
+      
       const { adId } = req.body;
 
       // Validate adId
@@ -15,7 +37,7 @@ const tokenController = {
       }
 
       // Check the cache first
-      let cachedData = cache.get(`user:${id}`);
+      let cachedData = cache.get<CachedUserData>(`user:${id}`);
       if (!cachedData) {
         // If not cached, fetch from database
         const user = await User.findById(id);
@@ -47,19 +69,24 @@ const tokenController = {
       cache.set(`user:${id}`, cachedData);
 
       // Send back the updated token balance
-      res.status(200).send({
+      return res.status(200).send({
         message: "Tokens earned successfully",
         tokens: cachedData.tokens,
       });
     } catch (error) {
       console.error("Error earning tokens:", error);
-      res.status(500).send({ error: "An error occurred while earning tokens" });
+      return res.status(500).send({ error: "An error occurred while earning tokens" });
     }
   },
 
-  async spendTokens(req, res) {
+  async spendTokens(req: SpendTokensRequest, res: Response): Promise<Response> {
     try {
-      const { id } = req.user; // Extract id from authenticated user
+      const id = req.user?.id;
+      
+      if (!id) {
+        return res.status(401).send({ error: "User not authenticated" });
+      }
+      
       const { tokens } = req.body;
 
       // Validate token amount
@@ -70,7 +97,7 @@ const tokenController = {
       }
 
       // Check the cache first
-      let cachedData = cache.get(`user:${id}`);
+      let cachedData = cache.get<CachedUserData>(`user:${id}`);
       if (!cachedData) {
         // If not cached, fetch from database
         const user = await User.findById(id);
@@ -111,17 +138,18 @@ const tokenController = {
       cache.set(`adEligibility:${id}`, false);
 
       // Send back the updated token balance
-      res.status(200).send({
+      return res.status(200).send({
         message: "Tokens spent successfully",
         tokens: cachedData.tokens,
       });
     } catch (error) {
       console.error("Error spending tokens:", error);
-      res
+      return res
         .status(500)
         .send({ error: "An error occurred while spending tokens" });
     }
   },
 };
 
-module.exports = tokenController;
+export default tokenController;
+

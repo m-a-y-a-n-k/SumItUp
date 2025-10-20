@@ -6,9 +6,8 @@
   "type": "commonjs",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
     "dev": "nodemon --exec ts-node index.ts",
-    "start:ts": "ts-node index.ts",
+    "start": "ts-node index.ts",
     "test": "mocha --timeout 10000 --require tests/setup.js tests/unit/**/*.test.js",
     "test:unit": "mocha --timeout 10000 --require tests/setup.js tests/unit/**/*.test.js",
     "test:unit:controllers": "mocha --timeout 10000 --require tests/setup.js tests/unit/controllers/*.test.js",
