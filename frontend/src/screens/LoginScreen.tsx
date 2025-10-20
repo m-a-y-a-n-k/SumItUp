@@ -29,7 +29,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
 
   const onSubmit = (data: FormData) => {
     if (data.email && data.password) {
-      navigation.navigate("Summary");
+      navigation.navigate("Home");
     } else {
       Alert.alert("Error", "Please fill in all fields");
     }
