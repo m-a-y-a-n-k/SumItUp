@@ -67,6 +67,15 @@ app.use("/api/files", fileRouter);
 app.use("/api/content", contentRouter);
 app.use("/api/user", userRouter);
 
+// Root route for health check
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "SumItUp Backend is running successfully!",
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Server Initialization
 const PORT: number = parseInt(process.env.PORT || "3000", 10);
 app.listen(PORT, () => {
