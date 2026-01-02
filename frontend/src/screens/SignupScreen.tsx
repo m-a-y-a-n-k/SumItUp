@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Platform,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "@/navigator/AppNavigator";
+import api from "@/services/api";
 
 type SignUpScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, "Signup">;
@@ -22,17 +24,38 @@ type FormData = {
 };
 
 const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
+  const [loading, setLoading] = useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
 
-  const onSubmit = (data: FormData) => {
-    if (data.username && data.email && data.password) {
-      navigation.navigate("Login");
-    } else {
-      Alert.alert("Error", "Please fill in all fields");
+  const onSubmit = async (data: FormData) => {
+    setLoading(true);
+    console.log("[SIGNUP SUBMIT] Data:", data);
+    try {
+      const response = await api.post("/auth/signup", data);
+      console.log("[SIGNUP SUCCESS] Response:", response.data);
+      if (Platform.OS === 'web') {
+        window.alert("Success: Account created successfully!");
+        navigation.navigate("Login");
+      } else {
+        Alert.alert("Success", "Account created successfully!", [
+          { text: "OK", onPress: () => navigation.navigate("Login") },
+        ]);
+      }
+    } catch (error: any) {
+      console.error("[SIGNUP ERROR]", error);
+      const errorMessage =
+        error.response?.data?.error || "Error creating account. Please try again.";
+      if (Platform.OS === 'web') {
+        window.alert(`Signup Failed: ${errorMessage}`);
+      } else {
+        Alert.alert("Signup Failed", errorMessage);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,8 +108,8 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
         rules={{
           required: "Password is required",
           minLength: {
-            value: 6,
-            message: "Password must be at least 6 characters",
+            value: 8,
+            message: "Password must be at least 8 characters",
           },
         }}
         name="password"
@@ -105,8 +128,14 @@ const SignUpScreen: React.FC<SignUpScreenProps> = ({ navigation }) => {
         <Text style={styles.error}>{errors.password.message}</Text>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.buttonText}>Sign Up</Text>
+      <TouchableOpacity
+        style={[styles.button, loading && { opacity: 0.7 }]}
+        onPress={handleSubmit(onSubmit)}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Creating Account..." : "Sign Up"}
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.bottomText}>

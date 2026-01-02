@@ -18,12 +18,15 @@ const login = async (req: LoginRequest, res: Response): Promise<Response> => {
   }
 
   try {
+    console.log(`[LOGIN ATTEMPT] Email: ${email}`);
     const user = await User.findByEmail(email);
+    console.log(`[LOGIN USER FOUND] ${user ? "Yes" : "No"}`);
     if (!user) {
       return res.status(401).json({ error: "User not found" });
     }
 
     const isMatch = await user.comparePassword(password);
+    console.log(`[LOGIN PASSWORD MATCH] ${isMatch ? "Yes" : "No"}`);
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid credentials" });
     }

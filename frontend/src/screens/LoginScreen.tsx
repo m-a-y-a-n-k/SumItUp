@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,13 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Platform,
 } from "react-native";
 import { useForm, Controller } from "react-hook-form";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "@/navigator/AppNavigator";
+import { useAuth } from "@/context/AuthContext";
+import api from "@/services/api";
 
 type LoginScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, "Login">;
@@ -21,17 +24,39 @@ type FormData = {
 };
 
 const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
+  const { signIn } = useAuth();
+  const [loading, setLoading] = useState(false);
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
 
-  const onSubmit = (data: FormData) => {
-    if (data.email && data.password) {
-      navigation.navigate("Home");
-    } else {
-      Alert.alert("Error", "Please fill in all fields");
+  const onSubmit = async (data: FormData) => {
+    setLoading(true);
+    console.log("[FRONTEND LOGIN] Submitting data:", data);
+    try {
+      const response = await api.post("/auth/login", data);
+      console.log("[LOGIN SUCCESS] Token received:", response.data.token ? "Yes" : "No");
+
+      await signIn(response.data.token);
+      // The navigation change happens automatically via AuthContext state change in AppNavigator.
+      // But for clarity/debugging on web, we can log or alert if needed.
+      if (Platform.OS === 'web') {
+        console.log("Logged in successfully, redirecting...");
+      }
+    } catch (error: any) {
+      console.error("[LOGIN ERROR]", error);
+      const errorMessage =
+        error.response?.data?.error || "Login failed. Please check your credentials.";
+
+      if (Platform.OS === 'web') {
+        window.alert(`Login Failed: ${errorMessage}`);
+      } else {
+        Alert.alert("Login Failed", errorMessage);
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -106,8 +131,14 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         <Text style={styles.error}>{errors.password.message}</Text>
       )}
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit(onSubmit)}>
-        <Text style={styles.buttonText}>Login</Text>
+      <TouchableOpacity
+        style={[styles.button, loading && { opacity: 0.7 }]}
+        onPress={handleSubmit(onSubmit)}
+        disabled={loading}
+      >
+        <Text style={styles.buttonText}>
+          {loading ? "Logging in..." : "Login"}
+        </Text>
       </TouchableOpacity>
 
       <View style={styles.bottomText}>

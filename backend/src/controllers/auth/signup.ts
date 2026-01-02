@@ -25,9 +25,11 @@ const signup = async (req: SignupRequest, res: Response): Promise<Response> => {
   }
 
   // Validate password strength
-  if (!/^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{8,}$/.test(password)) {
+  // Must contain at least one uppercase, one lowercase, one number, and one special character
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
+  if (!passwordRegex.test(password)) {
     return res.status(400).json({
-      error: "Password must be alphanumeric and at least 8 characters long",
+      error: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&*)",
     });
   }
 

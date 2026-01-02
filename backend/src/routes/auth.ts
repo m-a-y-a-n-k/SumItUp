@@ -11,21 +11,21 @@ const router = express.Router();
 // Rate limiting for sensitive routes
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
+  max: 100, // Increased for development
   message: "Too many login attempts from this IP, please try again later.",
 });
 
 const signupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 requests per windowMs
+  max: 100, // Increased for development
   message: "Too many signup attempts from this IP, please try again later.",
 });
 
 // Basic authentication routes
-router.post("/login", 
-  validateLogin, 
+router.post("/login",
+  validateLogin,
   handleValidationErrors,
-  loginLimiter, 
+  loginLimiter,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await authController.login(req, res);
@@ -48,8 +48,8 @@ router.post("/signup",
   }
 );
 
-router.post("/logout", 
-  authMiddleware as any, 
+router.post("/logout",
+  authMiddleware as any,
   async (req: any, res: Response, next: NextFunction) => {
     try {
       await authController.logout(req, res);
@@ -60,7 +60,7 @@ router.post("/logout",
 );
 
 // Forgot password routes
-router.post("/forgot-password", 
+router.post("/forgot-password",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await authController.forgotPassword(req, res);
@@ -70,7 +70,7 @@ router.post("/forgot-password",
   }
 );
 
-router.post("/reset-password", 
+router.post("/reset-password",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await authController.resetPassword(req, res);
@@ -81,7 +81,7 @@ router.post("/reset-password",
 );
 
 // Email verification routes
-router.post("/send-verification-email", 
+router.post("/send-verification-email",
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await authController.sendVerificationEmail(req, res);
@@ -91,7 +91,7 @@ router.post("/send-verification-email",
   }
 );
 
-router.get("/verify-email", 
+router.get("/verify-email",
   async (req: any, res: Response, next: NextFunction) => {
     try {
       await authController.verifyEmail(req, res);

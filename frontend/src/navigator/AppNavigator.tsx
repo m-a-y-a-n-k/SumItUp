@@ -1,7 +1,8 @@
 import React from "react";
+import { View, ActivityIndicator } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { useAuth } from "@/context/AuthContext";
 import HomeScreen from "@/screens/HomeScreen";
-import SplashScreen from "@/screens/SplashScreen";
 import ProfileScreen from "@/screens/ProfileScreen";
 import UploadScreen from "@/screens/UploadScreen";
 import SummaryScreen from "@/screens/SummaryScreen";
@@ -23,19 +24,32 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
+  const { isLoading, userToken } = useAuth();
+
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#0F172A" }}>
+        <ActivityIndicator size="large" color="#4f46e5" />
+      </View>
+    );
+  }
+
   return (
-    <Stack.Navigator
-      initialRouteName="Splash"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="Splash" component={SplashScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignUpScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Upload" component={UploadScreen} />
-      <Stack.Screen name="Summary" component={SummaryScreen} />
-      <Stack.Screen name="History" component={HistoryScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {userToken !== null ? (
+        <>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Upload" component={UploadScreen} />
+          <Stack.Screen name="Summary" component={SummaryScreen} />
+          <Stack.Screen name="History" component={HistoryScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Signup" component={SignUpScreen} />
+        </>
+      )}
     </Stack.Navigator>
   );
 };

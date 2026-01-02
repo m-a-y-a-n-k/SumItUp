@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { RootStackParamList } from "@/navigator/AppNavigator";
+import { useAuth } from "@/context/AuthContext";
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, "Home">;
@@ -54,6 +55,8 @@ const contentTypes = [
 ];
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const { signOut } = useAuth();
+
   const renderItem = ({ item }: { item: (typeof contentTypes)[0] }) => (
     <TouchableOpacity
       style={styles.card}
@@ -68,10 +71,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to SumItUp</Text>
-      <Text style={styles.subtitle}>
-        Select the content type you want to summarize
-      </Text>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>Welcome to SumItUp</Text>
+          <Text style={styles.subtitle}>
+            Select the content type you want to summarize
+          </Text>
+        </View>
+        <TouchableOpacity onPress={signOut} style={styles.signOutButton}>
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         data={contentTypes}
@@ -96,6 +106,12 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     paddingHorizontal: 20,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 10,
+  },
   title: {
     fontSize: 26,
     fontWeight: "700",
@@ -103,9 +119,20 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     color: "gray",
-    marginBottom: 20,
+    marginTop: 0,
+    maxWidth: "80%",
+  },
+  signOutButton: {
+    padding: 8,
+    backgroundColor: "#ef4444",
+    borderRadius: 8,
+  },
+  signOutText: {
+    color: "white",
+    fontWeight: "600",
+    fontSize: 12,
   },
   gridContainer: {
     paddingVertical: 10,
