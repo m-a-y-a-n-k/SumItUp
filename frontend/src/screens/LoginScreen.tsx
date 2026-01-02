@@ -46,7 +46,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         control={control}
         rules={{
           required: "Email is required",
-          pattern: { value: /\S+@\S+\.\S+/, message: "Enter a valid email" },
+          pattern: {
+            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
+            message: "Enter a valid email address",
+          },
         }}
         name="email"
         render={({ field: { onChange, value } }) => (
@@ -68,8 +71,23 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
         rules={{
           required: "Password is required",
           minLength: {
-            value: 6,
-            message: "Password must be at least 6 characters",
+            value: 8,
+            message: "Password must be at least 8 characters",
+          },
+          validate: (value) => {
+            if (!/[A-Z]/.test(value)) {
+              return "Password must contain at least one uppercase letter";
+            }
+            if (!/[a-z]/.test(value)) {
+              return "Password must contain at least one lowercase letter";
+            }
+            if (!/[0-9]/.test(value)) {
+              return "Password must contain at least one number";
+            }
+            if (!/[!@#$%^&*]/.test(value)) {
+              return "Password must contain at least one special character";
+            }
+            return true;
           },
         }}
         name="password"
