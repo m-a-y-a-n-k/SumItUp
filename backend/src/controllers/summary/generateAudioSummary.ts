@@ -5,7 +5,8 @@ import audioUtils from "../../utils/audio";
 import { AuthenticatedRequest } from "@/types";
 import { Response } from "express";
 
-const ROOT_DIR = "src/utils/audio/audios/";
+const ROOT_DIR = path.resolve(__dirname, "../../../uploads");
+const LEGACY_DIR = "src/utils/audio/audios/";
 
 export async function generateAudioSummary(req: AuthenticatedRequest, res: Response): Promise<void> {
   try {
@@ -24,14 +25,19 @@ export async function generateAudioSummary(req: AuthenticatedRequest, res: Respo
     }
 
     // Check if the audio file exists
-    if (!fs.existsSync(path.resolve(ROOT_DIR, audioData.audioFileName))) {
-      res.status(400).json({ error: "Audio file not found." });
-      return;
+    let filePath = path.resolve(ROOT_DIR, audioData.audioFileName);
+    if (!fs.existsSync(filePath)) {
+      // Try legacy path
+      filePath = path.resolve(LEGACY_DIR, audioData.audioFileName);
+      if (!fs.existsSync(filePath)) {
+        res.status(400).json({ error: "Audio file not found." });
+        return;
+      }
     }
 
     // Convert audio to text asynchronously
     const textFromAudio = await audioUtils.convertAudioToText(
-      audioData.audioFileName,
+      filePath,
       audioData.format
     );
 

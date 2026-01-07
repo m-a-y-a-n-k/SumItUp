@@ -63,7 +63,7 @@ app.use("/api/summary", summaryRouter);
 app.use("/api/pdf", pdfRouter);
 app.use("/api/search", searchRouter);
 app.use("/api/token", tokenRouter);
-app.use("/api/files", fileRouter);
+app.use("/api/file", fileRouter);
 app.use("/api/content", contentRouter);
 app.use("/api/user", userRouter);
 

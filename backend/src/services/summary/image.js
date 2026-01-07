@@ -4,6 +4,7 @@ const textUtil = require("../../utils/text");
 async function generateSummaryFromImage(imageData) {
   try {
     // Process the image data and generate a summary
+    // imageData here is actually the file path passed from the controller
     const imageDescription = await imageProcessingUtil.convertImageToText(
       imageData
     );

@@ -13,9 +13,11 @@ interface AllowedTypes {
 
 const ALLOWED_TYPES: AllowedTypes = {
   'image/jpeg': 'jpg',
-  'image/png': 'png', 
+  'image/jpg': 'jpg',
+  'image/png': 'png',
   'image/gif': 'gif',
   'audio/mpeg': 'mp3',
+  'audio/mp3': 'mp3',
   'audio/wav': 'wav',
   'application/pdf': 'pdf',
   'text/plain': 'txt'
@@ -63,7 +65,7 @@ const fileController = {
 
       // Validate file type
       if (!ALLOWED_TYPES[mimetype]) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: "File type not supported",
           supportedTypes: Object.keys(ALLOWED_TYPES)
         });
@@ -71,7 +73,7 @@ const fileController = {
 
       // Validate file size
       if (size > MAX_FILE_SIZE) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           error: `File too large. Maximum size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`
         });
       }
@@ -118,7 +120,7 @@ const fileController = {
   async downloadFile(req: Request & { params: FileParams }, res: Response): Promise<Response | void> {
     try {
       const { fileId } = req.params;
-      
+
       if (!fileId) {
         return res.status(400).json({ error: "File ID is required" });
       }
@@ -132,7 +134,7 @@ const fileController = {
       }
 
       const filepath = path.join(UPLOAD_DIR, matchingFile);
-      
+
       // Check if file exists
       if (!fs.existsSync(filepath)) {
         return res.status(404).json({ error: "File not found on disk" });
@@ -163,7 +165,7 @@ const fileController = {
   async deleteFile(req: Request & { params: FileParams }, res: Response): Promise<Response> {
     try {
       const { fileId } = req.params;
-      
+
       if (!fileId) {
         return res.status(400).json({ error: "File ID is required" });
       }
@@ -177,7 +179,7 @@ const fileController = {
       }
 
       const filepath = path.join(UPLOAD_DIR, matchingFile);
-      
+
       // Delete file
       if (fs.existsSync(filepath)) {
         fs.unlinkSync(filepath);
@@ -194,17 +196,17 @@ const fileController = {
   async listFiles(req: ListFilesRequest, res: Response): Promise<Response> {
     try {
       const { limit = "10", offset = "0" } = req.query;
-      
+
       // Get all files (in a real app, this would be from database with user filtering)
       const files = fs.readdirSync(UPLOAD_DIR);
-      
+
       const fileList = files
         .slice(parseInt(offset), parseInt(offset) + parseInt(limit))
         .map(filename => {
           const filepath = path.join(UPLOAD_DIR, filename);
           const stats = fs.statSync(filepath);
           const fileId = filename.split('.')[0];
-          
+
           return {
             id: fileId,
             filename: filename,
